@@ -1,0 +1,14 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api # sau 8080/api/...
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/labeling?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: 123456
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    
