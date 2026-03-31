@@ -1,0 +1,8 @@
+com\fe\repository\IStudentRepository.class
+com\fe\repository\StudentRepository.class
+com\fe\pojo\Student.class
+com\fe\pojo\Book.class
+com\fe\main\StudentMain.class
+com\fe\service\IStudentService.class
+com\fe\dao\StudentDAO.class
+com\fe\service\StudentService.class
