@@ -1,6 +1,7 @@
 package com.project.label.dto.request;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,4 +15,5 @@ public class UserUpdateRequest {
   private String lastName;
   private String email;
   private LocalDate dateOfBirth;
+  List<String> roles;
 }
