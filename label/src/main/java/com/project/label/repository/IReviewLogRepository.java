@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface IReviewLogRepository extends JpaRepository<ReviewLog, Long> {
+public interface IReviewLogRepository extends JpaRepository<ReviewLog, String> {
 }

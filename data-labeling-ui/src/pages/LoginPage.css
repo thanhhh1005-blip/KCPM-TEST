@@ -1,25 +1,21 @@
 /* Bao phủ toàn bộ màn hình, dùng Flexbox để căn giữa Form */
 .login-wrapper {
-  min-height: 100vh;
-  width: 100vw;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
-  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0; /* Reset margin mặc định của body */
-  padding: 0;
+  justify-content: center; /* Căn giữa theo chiều ngang */
+  align-items: center;     /* Căn giữa theo chiều dọc */
+  width: 100vw;            /* Chiều rộng bằng 100% màn hình */
+  height: 100vh;           /* Chiều cao bằng 100% màn hình */
+  background-color: #f1f5f9; 
 }
 
 /* Thẻ Form (Card) */
 .login-box {
-  background: #ffffff;
   width: 100%;
-  max-width: 420px;
-  padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  box-sizing: border-box;
+  max-width: 400px; /* Giới hạn độ rộng của form đăng nhập */
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 /* Header của Form */

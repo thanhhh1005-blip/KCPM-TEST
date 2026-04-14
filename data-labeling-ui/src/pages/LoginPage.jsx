@@ -1,14 +1,17 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./LoginPage.css";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 const LOGIN_ENDPOINT = `${API_BASE_URL}/api/auth/token`;
 
-function LoginPage({ onLogin }) {
+function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const navigate = useNavigate(); // 2. KHỞI TẠO BIẾN ĐIỀU HƯỚNG
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -31,12 +34,13 @@ function LoginPage({ onLogin }) {
         return;
       }
 
-      // Đăng nhập thành công! Gọi hàm onLogin truyền từ App.jsx xuống
-      // Truyền toàn bộ thông tin (token, user info...) để App.jsx xử lý Layout
-      onLogin(payload.result);
+      // 3. ĐÂY LÀ ĐIỂM QUAN TRỌNG: Lưu token và chuyển trang thẳng vào Admin
+      localStorage.setItem("token", payload.result.token);
+      navigate("/admin/users"); 
       
     } catch (err) {
-      setError("Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng!");
+      console.error("Lỗi chi tiết:", err); // In ra log thật để dễ debug
+      setError("Không thể kết nối đến máy chủ hoặc có lỗi xử lý.");
     } finally {
       setIsLoading(false);
     }
@@ -48,7 +52,7 @@ function LoginPage({ onLogin }) {
         
         {/* Phần Logo & Tiêu đề */}
         <div className="login-header">
-          <div className="logo-icon">
+          <div className="logo-icon">g
             {/* Vẽ một icon đơn giản bằng CSS/SVG đại diện cho Data Labeling */}
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>

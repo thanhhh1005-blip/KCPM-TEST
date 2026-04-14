@@ -73,7 +73,7 @@ SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
       CorsConfiguration configuration = new CorsConfiguration();
-      configuration.setAllowedOrigins(List.of("http://localhost:5174"));
+      configuration.setAllowedOrigins(List.of("http://localhost:5173"));
       configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
       configuration.setAllowedHeaders(List.of("*"));
       configuration.setAllowCredentials(true);
