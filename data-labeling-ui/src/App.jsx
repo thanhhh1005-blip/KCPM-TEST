@@ -4,6 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import ManageUsersPage from './pages/ManageUsersPage';
 import MainLayout from './layouts/MainLayout';
+import AnnotationPage from './pages/AnnotationPage';
 
 function App() {
   return (
@@ -18,6 +19,9 @@ function App() {
         {/* Bạn có thể thêm các route con khác ở đây sau này */}
         {/* <Route path="projects" element={<ManageProjectsPage />} /> */}
       </Route>
+
+      {/* 2. Thêm route gán nhãn */}
+      <Route path="/tasks" element={<AnnotationPage />} />
 
       {/* Route dự phòng báo lỗi 404 nếu gõ sai đường dẫn */}
       <Route path="*" element={<h2 style={{ textAlign: 'center', marginTop: '50px' }}>404 - Không tìm thấy trang</h2>} />

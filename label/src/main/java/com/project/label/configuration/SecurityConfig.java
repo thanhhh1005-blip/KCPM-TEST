@@ -37,6 +37,7 @@ public class SecurityConfig {
         "/auth/introspect",
         "/auth/logout",
         "/auth/refresh"
+        
     };
 
     @Value("${jwt.signerKey}")
@@ -55,10 +56,12 @@ SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         .authorizeHttpRequests(request -> request
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+            .requestMatchers(HttpMethod.GET, "/users").permitAll()
+            .requestMatchers(HttpMethod.POST, "/annotations").authenticated()
             .anyRequest().authenticated() 
         )
         
-        // 3. Cấu hình xác thực bằng JWT (OAuth2)
+        // 3. Cấu hình xác thực bằng JWT (OAuth2)   
         .oauth2ResourceServer(oauth2 -> oauth2
             .jwt(jwtConfigurer -> jwtConfigurer
                     .decoder(customJwtDecoder)
