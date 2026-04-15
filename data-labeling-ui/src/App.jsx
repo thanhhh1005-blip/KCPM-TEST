@@ -6,6 +6,7 @@ import MainLayout from './layouts/MainLayout';
 import ProjectListPage from './pages/ProjectListPage';
 import CreateProjectPage from './pages/CreateProjectPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
+import AnnotationPage from './pages/AnnotationPage';
 
 function App() {
   return (
@@ -18,11 +19,12 @@ function App() {
         <Route path="projects" element={<ProjectListPage />} />
         <Route path="projects/create" element={<CreateProjectPage />} />
         <Route path="projects/:projectId" element={<ProjectDetailPage />} />
-      </Route>
+</Route>
 
-      <Route path="*" element={<h2 style={{ textAlign: 'center', marginTop: '50px' }}>404 - Not Found</h2>} />
+<Route path="/tasks" element={<AnnotationPage />} />
+{/* Route dự phòng báo lỗi 404 nếu gõ sai đường dẫn */}
+<Route path="*" element={<h2 style={{ textAlign: 'center', marginTop: '50px' }}>404 - Không tìm thấy trang</h2>} />
     </Routes>
   );
 }
-
 export default App;
