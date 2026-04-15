@@ -42,11 +42,11 @@ function MainLayout() {
 
   // Định nghĩa menu dựa trên role
   const MENU_ITEMS = [
-    { path: "/dashboard", label: "Dashboard", icon: "📊", roles: ["ADMIN", "MANAGER", "ANNOTATOR", "REVIEWER"] },
-    { path: "/users", label: "Quản lý User", icon: "👥", roles: ["ADMIN"] },
-    { path: "/projects", label: "Quản lý Dự án", icon: "📁", roles: ["ADMIN", "MANAGER"] },
-    { path: "/tasks", label: "Việc gán nhãn", icon: "✏️", roles: ["ANNOTATOR", "REVIEWER"] },
-    { path: "/export", label: "Xuất dữ liệu", icon: "📥", roles: ["ADMIN", "MANAGER"] }
+    { path: "dashboard", label: "Dashboard", icon: "📊", roles: ["ADMIN", "MANAGER", "ANNOTATOR", "REVIEWER"] },
+    { path: "users", label: "Quản lý User", icon: "👥", roles: ["ADMIN"] },
+    { path: "projects", label: "Quản lý Dự án", icon: "📁", roles: ["ADMIN", "MANAGER"] },
+    { path: "tasks", label: "Việc gán nhãn", icon: "✏️", roles: ["ANNOTATOR", "REVIEWER"] },
+    { path: "export", label: "Xuất dữ liệu", icon: "📥", roles: ["ADMIN", "MANAGER"] }
   ];
 
   // Lọc các menu mà người dùng hiện tại có quyền xem

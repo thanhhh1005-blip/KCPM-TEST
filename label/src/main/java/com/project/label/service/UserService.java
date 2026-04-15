@@ -43,7 +43,7 @@ public class UserService {
     user.setPassword(passwordEncoder.encode(request.getPassword()));
     // Set default role
     HashSet<String> role = new HashSet<>();
-    role.add(Role.USER.name());
+    role.add(Role.ANNOTATOR.name());
     //user.setRoles(role);
     return userRepository.save(user);
   }

@@ -11,8 +11,20 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
     
 jwt:
   signerKey: "be4a8798222ebe35de31c52e483770c9efe2be0c2d0c9aa209ca48b27faf7d83"
   valid-duration: 1 # in seconds
   refreshable-duration: 3 # in seconds
+
+cloudinary:
+  cloud-name: "djcvbbhup"
+  api-key: "915878471116958"
+  api-secret: "Wo8Zrd_XgB-_5ZHj2fYQyXCzzns"
+
+
+  
