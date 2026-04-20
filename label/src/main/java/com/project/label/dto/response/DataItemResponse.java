@@ -10,5 +10,6 @@ public class DataItemResponse {
     private String id;
     private String fileName;
     private String fileUrl;
+    private String rejectReason;
     private DataItemStatus status;
 }

@@ -8,14 +8,14 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class AnnotationRequest {
-    private String taskId;
+    private String dataItemId; // 🌟 Đổi từ taskId sang dataItemId
     private List<AnnotationDetail> annotations;
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class AnnotationDetail {
-        private int labelId;
+        private String labelId; // 🌟 Đổi từ int sang String để nối với bảng Label
         private double xcenter;
         private double ycenter;
         private double width;

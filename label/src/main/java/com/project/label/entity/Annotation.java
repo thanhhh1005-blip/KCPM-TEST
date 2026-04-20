@@ -1,5 +1,7 @@
 package com.project.label.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,21 +11,30 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class Annotation {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    private int labelId; // 0: Car, 1: Motorbike...
+    // Liên kết trực tiếp đến thực thể Label để lấy Màu sắc/Tên
+    @ManyToOne
+    @JoinColumn(name = "label_id")
+    private Label label; 
     
-    // Tọa độ chuẩn YOLO (0.0 -> 1.0)
+    // Tọa độ chuẩn YOLO (Lưu số thập phân để AI dễ đọc)
     private double xCenter;
     private double yCenter;
     private double width;
     private double height;
 
+    // Gắn với ảnh (DataItem) thay vì Task
     @ManyToOne
-    @JoinColumn(name = "task_id")
-    private Task task; // Nhãn này thuộc về ảnh (Task) nào
+    @JoinColumn(name = "data_item_id")
+    @JsonIgnore
+    private DataItem dataItem;
+
+    // Lưu thêm người đã vẽ để kiểm soát chất lượng
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User annotator;
 }

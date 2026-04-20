@@ -3,9 +3,12 @@ package com.project.label.service;
 import com.project.label.dto.response.DataItemResponse;
 import com.project.label.entity.DataItem;
 import com.project.label.entity.Project;
+import com.project.label.entity.ReviewLog;
 import com.project.label.enums.DataItemStatus;
 import com.project.label.repository.IDataItemRepository;
 import com.project.label.repository.IProjectRepository;
+import com.project.label.repository.IReviewLogRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +25,7 @@ public class DatasetService {
     private final CloudinaryService cloudinaryService;
     private final IDataItemRepository dataItemRepository;
     private final IProjectRepository projectRepository;
+    private final IReviewLogRepository reviewLogRepository;
 
     // Annotation này đảm bảo: Upload lỗi giữa chừng thì không lưu DB linh tinh
     @Transactional 
@@ -58,14 +62,55 @@ public class DatasetService {
         // Tìm tất cả DataItem theo ID dự án
         List<DataItem> items = dataItemRepository.findByProjectId(projectId);
         
-        // Chuyển đổi Entity sang DTO để trả về an toàn
-        return items.stream().map(item -> 
-            DataItemResponse.builder()
+        // Chuyển đổi Entity sang DTO và LẤY THÊM LÝ DO TỪ CHỐI (Nếu có)
+        return items.stream().map(item -> {
+            String reason = null;
+            
+            // 🌟 NẾU ẢNH BỊ TỪ CHỐI, MÓC LÝ DO TRONG LOG RA
+            if (item.getStatus() == DataItemStatus.REJECTED) {
+                List<ReviewLog> logs = reviewLogRepository.findByDataItemIdOrderByCreatedAtDesc(item.getId());
+                if (!logs.isEmpty()) {
+                    reason = logs.get(0).getComment(); // Lấy lý do mới nhất
+                }
+            }
+
+            return DataItemResponse.builder()
                 .id(item.getId())
                 .fileName(item.getFileName())
                 .fileUrl(item.getFileUrl())
                 .status(item.getStatus())
-                .build()
-        ).collect(Collectors.toList());
+                .rejectReason(reason) // 🌟 Gắn lý do vào đây để gửi cho React
+                .build();
+        }).collect(Collectors.toList());
+    }
+
+    public DataItemResponse getNextItemForAnnotator(String projectId) {
+        List<DataItemStatus> targetStatuses = java.util.Arrays.asList(
+                DataItemStatus.UNLABELED, 
+                DataItemStatus.REJECTED
+        );
+
+        List<DataItem> items = dataItemRepository.findByProjectIdAndStatusIn(projectId, targetStatuses);
+
+        if (items.isEmpty()) return null; 
+        
+        DataItem item = items.get(0);
+        String reason = null;
+
+        // 🌟 NẾU LÀ ẢNH BỊ TỪ CHỐI -> Móc lý do mới nhất trong DB ra
+        if (item.getStatus() == DataItemStatus.REJECTED) {
+            List<ReviewLog> logs = reviewLogRepository.findByDataItemIdOrderByCreatedAtDesc(item.getId());
+            if (!logs.isEmpty()) {
+                reason = logs.get(0).getComment();
+            }
+        }
+        
+        return DataItemResponse.builder()
+                .id(item.getId())
+                .fileName(item.getFileName())
+                .fileUrl(item.getFileUrl())
+                .status(item.getStatus())
+                .rejectReason(reason) // 🌟 Gắn lý do vào DTO
+                .build();
     }
 }

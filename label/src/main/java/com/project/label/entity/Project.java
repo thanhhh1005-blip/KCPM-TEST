@@ -1,7 +1,9 @@
 package com.project.label.entity;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.project.label.enums.ProjectStatus;
 
@@ -60,4 +62,12 @@ public class Project {
       createdAt = LocalDateTime.now();
       status = ProjectStatus.DRAFT;
   }
+
+  @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private Set<ProjectMember> members = new HashSet<>();
+
+  @ManyToOne
+  @JoinColumn(name = "reviewer_id")
+  private User reviewer; // Người chịu trách nhiệm duyệt nhãn
 }

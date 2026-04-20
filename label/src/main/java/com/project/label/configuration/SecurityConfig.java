@@ -58,6 +58,7 @@ SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
             .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
             .requestMatchers(HttpMethod.GET, "/users").permitAll()
             .requestMatchers(HttpMethod.POST, "/annotations").authenticated()
+            .requestMatchers("/api/labels/**").authenticated()
             .anyRequest().authenticated() 
         )
         

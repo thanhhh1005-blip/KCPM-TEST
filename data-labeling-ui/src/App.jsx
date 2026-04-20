@@ -7,23 +7,43 @@ import ProjectListPage from './pages/ProjectListPage';
 import CreateProjectPage from './pages/CreateProjectPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import AnnotationPage from './pages/AnnotationPage';
+import MyTasksPage from './pages/MyTasksPage';
+import LabelWorkspace from './pages/LabelWorkspace';
+import ProtectedRoute from './components/ProtectedRoute';
+import ReviewWorkspace from './pages/ReviewWorkspace';
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<LoginPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/workspace/:projectId" element={
+      <ProtectedRoute allowedRoles={['ANNOTATOR']}>
+        <LabelWorkspace />
+      </ProtectedRoute>
+      } />
+      <Route path="/admin/review/:projectId" element={
+        <ProtectedRoute allowedRoles={['MANAGER', 'ADMIN', 'REVIEWER']}>
+          <ReviewWorkspace />
+        </ProtectedRoute>
+      } />
+      
+      {/* 🌟 TẤT CẢ USER ĐÃ ĐĂNG NHẬP ĐỀU DÙNG CHUNG MAIN LAYOUT */}
+      <Route element={<MainLayout />}>
+        
+        {/* Khu vực của Annotator */}
+        <Route path="/my-tasks" element={<MyTasksPage />} />
+        <Route path="/tasks" element={<AnnotationPage />} />
 
-      <Route path="/admin" element={<MainLayout />}>
-        <Route path="users" element={<ManageUsersPage />} />
-        <Route path="projects" element={<ProjectListPage />} />
-        <Route path="projects/create" element={<CreateProjectPage />} />
-        <Route path="projects/:projectId" element={<ProjectDetailPage />} />
-</Route>
+        {/* Khu vực của Admin / Manager */}
+        <Route path="/admin/users" element={<ManageUsersPage />} />
+        <Route path="/admin/projects" element={<ProjectListPage />} />
+        <Route path="/admin/projects/create" element={<CreateProjectPage />} />
+        <Route path="/admin/projects/:projectId" element={<ProjectDetailPage />} />
 
-<Route path="/tasks" element={<AnnotationPage />} />
-{/* Route dự phòng báo lỗi 404 nếu gõ sai đường dẫn */}
-<Route path="*" element={<h2 style={{ textAlign: 'center', marginTop: '50px' }}>404 - Không tìm thấy trang</h2>} />
+      </Route>
+
+      <Route path="*" element={<h2 style={{ textAlign: 'center', marginTop: '50px' }}>404 - Không tìm thấy trang</h2>} />
     </Routes>
   );
 }

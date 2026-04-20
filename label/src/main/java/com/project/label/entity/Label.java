@@ -1,5 +1,7 @@
 package com.project.label.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,5 +31,6 @@ public class Label {
 
   @ManyToOne
   @JoinColumn(name = "project_id")
+  @JsonIgnore
   Project project;
 }

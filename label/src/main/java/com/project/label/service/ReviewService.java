@@ -1,67 +1,50 @@
 package com.project.label.service;
 
-import com.project.label.entity.ReviewLog;
-import com.project.label.entity.Task;
-import com.project.label.entity.User;
-import com.project.label.enums.TaskStatus;
-import com.project.label.repository.IReviewLogRepository;
-import com.project.label.repository.ITaskRepository;
-import com.project.label.repository.IUserRepository;
+import com.project.label.entity.*;
+import com.project.label.enums.DataItemStatus;
+import com.project.label.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
-
-    private final ITaskRepository taskRepository;
+    private final IDataItemRepository dataItemRepository;
     private final IReviewLogRepository reviewLogRepository;
-    private final IUserRepository userRepository; // Dùng lại IUserRepository bạn đã có sẵn
+    private final IUserRepository userRepository;
 
-    public List<Task> getPendingTasks(String reviewerId) {
-        return taskRepository.findByReviewerIdAndStatus(reviewerId, TaskStatus.SUBMITTED);
+    // Lấy những ảnh đã gán nhãn (LABELED) đang chờ Manager duyệt
+    public List<DataItem> getPendingItems(String projectId) {
+        return dataItemRepository.findByProjectIdAndStatus(projectId, DataItemStatus.LABELED);
     }
 
     @Transactional
-    public Task approveTask(String taskId) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy nhiệm vụ này."));
-
-        if (task.getStatus() != TaskStatus.SUBMITTED) {
-            throw new IllegalStateException("Lỗi: Chỉ có thể duyệt các ảnh đang ở trạng thái SUBMITTED.");
-        }
-
-        task.setStatus(TaskStatus.APPROVED);
-        return taskRepository.save(task);
+    public void approve(String itemId) {
+        DataItem item = dataItemRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy ảnh"));
+        item.setStatus(DataItemStatus.APPROVED); // ✅ Duyệt!
+        dataItemRepository.save(item);
     }
 
     @Transactional
-    public Task rejectTask(String taskId, String reviewerId, String rejectReason) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy nhiệm vụ."));
+    public void reject(String itemId, String username, String reason) {
+        DataItem item = dataItemRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy ảnh"));
+        User reviewer = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Reviewer"));
 
-        User reviewer = userRepository.findById(reviewerId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy Reviewer."));
+        // 1. Đổi trạng thái về REJECTED để Annotator vẽ lại
+        item.setStatus(DataItemStatus.REJECTED);
+        dataItemRepository.save(item);
 
-        if (task.getStatus() != TaskStatus.SUBMITTED) {
-            throw new IllegalStateException("Lỗi: Chỉ có thể từ chối các ảnh đang ở trạng thái SUBMITTED.");
-        }
-
-        // 1. Đổi trạng thái Task về REJECTED
-        task.setStatus(TaskStatus.REJECTED);
-        Task savedTask = taskRepository.save(task);
-
-        // 2. Ghi lại lịch sử (ReviewLog) để Annotator biết đường sửa
+        // 2. Lưu lại "lời nhắn nhủ" của Manager
         ReviewLog log = ReviewLog.builder()
-                .task(savedTask)
+                .dataItem(item)
                 .reviewer(reviewer)
-                .comment(rejectReason)
+                .comment(reason)
                 .build();
         reviewLogRepository.save(log);
-
-        return savedTask;
     }
 }

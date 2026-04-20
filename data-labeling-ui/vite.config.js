@@ -7,4 +7,7 @@ export default defineConfig({
   server:{
     open: true, // Tự động mở trình duyệt khi chạy dev server
   },
+  resolve: {
+    dedupe: ['react', 'react-dom']
+  }
 });

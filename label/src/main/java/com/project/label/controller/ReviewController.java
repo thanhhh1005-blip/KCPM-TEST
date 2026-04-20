@@ -1,42 +1,44 @@
 package com.project.label.controller;
 
-import com.project.label.dto.request.RejectTaskRequest;
-import com.project.label.entity.Task;
+import com.project.label.dto.request.RejectTaskRequest; // Bạn tạo thêm DTO này nhé
+import com.project.label.dto.response.ApiResponse;
+import com.project.label.entity.DataItem;
 import com.project.label.service.ReviewService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/reviews")
+@RequestMapping("/reviews") // 🌟 Bỏ v1, tự động nhận /api từ cấu hình global
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class ReviewController {
 
     private final ReviewService reviewService;
 
-    // GET: http://localhost:8080/api/v1/reviews/pending/1
-    @GetMapping("/pending/{reviewerId}")
-    public ResponseEntity<List<Task>> getPendingTasks(@PathVariable String reviewerId) {
-        List<Task> tasks = reviewService.getPendingTasks(reviewerId);
-        return ResponseEntity.ok(tasks);
+    @GetMapping("/pending/{projectId}")
+    public ApiResponse<List<DataItem>> getPending(@PathVariable String projectId) {
+        return ApiResponse.<List<DataItem>>builder()
+                .result(reviewService.getPendingItems(projectId))
+                .build();
     }
 
-    // POST: http://localhost:8080/api/v1/reviews/100/approve
-    @PostMapping("/{taskId}/approve")
-    public ResponseEntity<String> approveTask(@PathVariable String taskId) {
-        reviewService.approveTask(taskId);
-        return ResponseEntity.ok("Đã phê duyệt nhiệm vụ thành công!");
+    @PostMapping("/{itemId}/approve")
+    public ApiResponse<String> approve(@PathVariable String itemId) {
+        reviewService.approve(itemId);
+        return ApiResponse.<String>builder().result("Đã duyệt ảnh!").build();
     }
 
-    // POST: http://localhost:8080/api/v1/reviews/100/reject
-    @PostMapping("/{taskId}/reject")
-    public ResponseEntity<String> rejectTask(
-            @PathVariable String taskId, 
-            @RequestBody RejectTaskRequest request) {
-            
-        reviewService.rejectTask(taskId, request.getReviewerId(), request.getRejectReason());
-        return ResponseEntity.ok("Đã từ chối nhiệm vụ và gửi phản hồi cho Annotator.");
+    @PostMapping("/{itemId}/reject")
+    public ApiResponse<String> reject(@PathVariable String itemId, @RequestBody RejectTaskRequest request) {
+        // 🌟 Tự động lấy username của người đang đăng nhập từ Token
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        
+        // Gọi Service (truyền username thay vì reviewerId từ request)
+        reviewService.reject(itemId, currentUsername, request.getRejectReason());
+        
+        return ApiResponse.<String>builder().result("Đã từ chối nhiệm vụ").build();
     }
 }

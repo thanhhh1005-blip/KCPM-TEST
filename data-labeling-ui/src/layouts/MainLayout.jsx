@@ -1,9 +1,7 @@
-// src/layouts/MainLayout.jsx
 import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
-import { useEffect, useState ,} from "react";
-import "./MainLayout.css"; // File CSS của layout này
+import { useEffect, useState } from "react";
+import "./MainLayout.css"; 
 
-// Hàm giải mã JWT Token đơn giản để lấy thông tin (Role, Username)
 function parseJwt(token) {
   try {
     const base64Url = token.split('.')[1];
@@ -29,9 +27,21 @@ function MainLayout() {
       return;
     }
     const decoded = parseJwt(token);
+    
+    // In ra console để xem bên trong Token có gì (nếu vẫn lỗi bạn mở F12 lên xem nhé)
+    console.log("Token giải mã được:", decoded); 
+
     if (decoded) {
-      const userRole = decoded.scope || decoded.role || "";
-      setUserInfo({ username: decoded.sub || "User", role: userRole });
+      // Quét tất cả các tên biến mà Spring Boot có thể dùng để lưu Role
+      let rawRole = decoded.scope || decoded.role || decoded.roles || decoded.authorities || "";
+      
+      // Nếu Spring Boot trả về mảng (Array) thì nối lại thành chuỗi, còn không thì ép kiểu về String
+      let userRoleString = Array.isArray(rawRole) ? rawRole.join(" ") : String(rawRole);
+      
+      setUserInfo({ 
+        username: decoded.sub || "User", 
+        role: userRoleString.toUpperCase() 
+      });
     }
   }, [navigate]);
 
@@ -40,19 +50,20 @@ function MainLayout() {
     navigate("/login");
   };
 
-  // Định nghĩa menu dựa trên role
+  // 🌟 Cập nhật lại đường dẫn (path) cho chuẩn xác với App.jsx
   const MENU_ITEMS = [
-    { path: "dashboard", label: "Dashboard", icon: "📊", roles: ["ADMIN", "MANAGER", "ANNOTATOR", "REVIEWER"] },
-    { path: "users", label: "Quản lý User", icon: "👥", roles: ["ADMIN"] },
-    { path: "projects", label: "Quản lý Dự án", icon: "📁", roles: ["ADMIN", "MANAGER"] },
-    { path: "tasks", label: "Việc gán nhãn", icon: "✏️", roles: ["ANNOTATOR", "REVIEWER"] },
-    { path: "export", label: "Xuất dữ liệu", icon: "📥", roles: ["ADMIN", "MANAGER"] }
+    { path: "/my-tasks", label: "Nhiệm vụ của tôi", icon: "🎯", roles: ["ANNOTATOR", "REVIEWER"] },
+    { path: "/admin/projects", label: "Quản lý Dự án", icon: "📁", roles: ["ADMIN", "MANAGER"] },
+    { path: "/admin/users", label: "Quản lý User", icon: "👥", roles: ["ADMIN"] },
   ];
 
-  // Lọc các menu mà người dùng hiện tại có quyền xem
-  const allowedMenus = MENU_ITEMS.filter(menu =>
-    menu.roles.some(r => userInfo.role.includes(r)) || userInfo.role === ""
-  );
+  const allowedMenus = MENU_ITEMS.filter(menu => {
+    // Nếu chưa load được role thì không hiện menu nào (Tránh rò rỉ UI)
+    if (!userInfo.role) return false; 
+    
+    // So khớp xem Role của user có chứa chữ nào trong danh sách yêu cầu của Menu không
+    return menu.roles.some(r => userInfo.role.includes(r));
+  });
 
   return (
     <div className="layout-container">
@@ -86,7 +97,7 @@ function MainLayout() {
         </header>
 
         <main className="body-content">
-          <Outlet /> {/* Các trang con sẽ hiển thị tại đây */}
+          <Outlet /> 
         </main>
 
         <footer className="footer">

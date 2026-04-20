@@ -13,7 +13,7 @@ import com.project.label.dto.request.UserCreationRequest;
 import com.project.label.dto.request.UserUpdateRequest;
 import com.project.label.dto.response.UserResponse;
 import com.project.label.entity.User;
-import com.project.label.enums.Role;
+import com.project.label.entity.Role;
 import com.project.label.exception.AppException;
 import com.project.label.exception.ErrorCode;
 import com.project.label.mapper.IUserMapper;
@@ -41,10 +41,30 @@ public class UserService {
     }
     User user = userMapper.toUser(request); 
     user.setPassword(passwordEncoder.encode(request.getPassword()));
-    // Set default role
-    HashSet<String> role = new HashSet<>();
-    role.add(Role.ANNOTATOR.name());
-    //user.setRoles(role);
+    
+    // 🌟 LOGIC CẤP QUYỀN MỚI TẠI ĐÂY
+    HashSet<Role> roles = new HashSet<>();
+
+    // 1. Nếu Request có truyền danh sách Role (Tức là Admin đang dùng giao diện Quản lý để tạo)
+    if (request.getRoles() != null && !request.getRoles().isEmpty()) {
+        for (Role roleObj : request.getRoles()) { 
+            
+            // Bóc lấy cái tên (ví dụ: "MANAGER") từ trong Object ra
+            String roleName = roleObj.getName();
+            
+            com.project.label.entity.Role role = roleRepository.findById(roleName)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Role: " + roleName));
+            roles.add(role);
+        }
+    } 
+    // 2. Nếu Request KHÔNG truyền Role (Tức là chức năng Khách tự Đăng ký sau này)
+    else {
+        Role defaultRole = roleRepository.findById("ANNOTATOR")
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy Role ANNOTATOR trong DB!"));
+        roles.add(defaultRole);
+    }
+
+    user.setRoles(roles);
     return userRepository.save(user);
   }
 
@@ -69,7 +89,6 @@ public class UserService {
   }
 
   //@PreAuthorize("hasRole('ADMIN')")
-  @PreAuthorize("hasAuthority('GET_DATA')")
   public List<UserResponse> getUsers() {
     log.info("In method get users");
     return userRepository.findAll().stream()
