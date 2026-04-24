@@ -27,15 +27,9 @@ function MainLayout() {
       return;
     }
     const decoded = parseJwt(token);
-    
-    // In ra console để xem bên trong Token có gì (nếu vẫn lỗi bạn mở F12 lên xem nhé)
-    console.log("Token giải mã được:", decoded); 
 
     if (decoded) {
-      // Quét tất cả các tên biến mà Spring Boot có thể dùng để lưu Role
       let rawRole = decoded.scope || decoded.role || decoded.roles || decoded.authorities || "";
-      
-      // Nếu Spring Boot trả về mảng (Array) thì nối lại thành chuỗi, còn không thì ép kiểu về String
       let userRoleString = Array.isArray(rawRole) ? rawRole.join(" ") : String(rawRole);
       
       setUserInfo({ 
@@ -50,18 +44,17 @@ function MainLayout() {
     navigate("/login");
   };
 
-  // 🌟 Cập nhật lại đường dẫn (path) cho chuẩn xác với App.jsx
   const MENU_ITEMS = [
     { path: "/my-tasks", label: "Nhiệm vụ của tôi", icon: "🎯", roles: ["ANNOTATOR", "REVIEWER"] },
     { path: "/admin/projects", label: "Quản lý Dự án", icon: "📁", roles: ["ADMIN", "MANAGER"] },
+    { path: "/admin/dashboard", label: "Thống kê & Báo cáo", icon: "📊", roles: ["ADMIN", "MANAGER"] },
     { path: "/admin/users", label: "Quản lý User", icon: "👥", roles: ["ADMIN"] },
+    { path: "/admin/audit-logs", label: "Nhật ký Hệ thống", icon: "🛡️", roles: ["ADMIN"] },
+    { path: "/admin/settings", label: "Cấu hình Hệ thống", icon: "⚙️", roles: ["ADMIN"] },
   ];
 
   const allowedMenus = MENU_ITEMS.filter(menu => {
-    // Nếu chưa load được role thì không hiện menu nào (Tránh rò rỉ UI)
     if (!userInfo.role) return false; 
-    
-    // So khớp xem Role của user có chứa chữ nào trong danh sách yêu cầu của Menu không
     return menu.roles.some(r => userInfo.role.includes(r));
   });
 
@@ -74,7 +67,7 @@ function MainLayout() {
         <nav className="sidebar-nav">
           <ul>
             {allowedMenus.map((menu, index) => (
-              <li key={index} className={location.pathname.includes(menu.path) ? "active" : ""}>
+              <li key={index} className={location.pathname.startsWith(menu.path) ? "active" : ""}>
                 <Link to={menu.path}>
                   <span className="menu-icon">{menu.icon}</span>
                   {menu.label}

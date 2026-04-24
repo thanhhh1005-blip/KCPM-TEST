@@ -20,6 +20,7 @@ import com.project.label.service.DatasetService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,38 +59,44 @@ public class DatasetController {
         .build();
   }
 
+  @DeleteMapping("/{id}")
+  public ApiResponse<Void> deleteDataItem(@PathVariable String id) {
+    datasetService.deleteDataItem(id); // Gọi hàm xóa trong Service mà bạn đã làm lúc nãy
+    return ApiResponse.<Void>builder().message("Xóa ảnh thành công").build();
+  }
+
   @SuppressWarnings("unchecked")
   @GetMapping("/ai-suggest/{itemId}")
-    public ApiResponse<List<AiSuggestionDto>> getAiSuggestion(@PathVariable String itemId) {
-        
-        // 1. Tìm cái link ảnh trong DB
-        DataItem item = dataItemRepository.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy ảnh"));
+  public ApiResponse<List<AiSuggestionDto>> getAiSuggestion(@PathVariable String itemId) {
 
-        // 2. Chuẩn bị gói hàng gửi sang Python
-        String pythonUrl = "http://localhost:8000/predict";
-        Map<String, String> requestBody = new HashMap<>();
-        requestBody.put("url", item.getFileUrl());
+    // 1. Tìm cái link ảnh trong DB
+    DataItem item = dataItemRepository.findById(itemId)
+        .orElseThrow(() -> new RuntimeException("Không tìm thấy ảnh"));
 
-        // 3. Gọi Python và hứng kết quả
-        RestTemplate restTemplate = new RestTemplate();
-        Map<String, Object> response = restTemplate.postForObject(pythonUrl, requestBody, Map.class);
+    // 2. Chuẩn bị gói hàng gửi sang Python
+    String pythonUrl = "http://localhost:8000/predict";
+    Map<String, String> requestBody = new HashMap<>();
+    requestBody.put("url", item.getFileUrl());
 
-        // 4. Lấy mảng "result" ép kiểu trả về cho Frontend
-        List<Map<String, Object>> resultList = (List<Map<String, Object>>) response.get("result");
-        
-        List<AiSuggestionDto> dtos = resultList.stream().map(map -> {
-            AiSuggestionDto dto = new AiSuggestionDto();
-            dto.setLabelName((String) map.get("labelName"));
-            Object confObj = map.get("confidence");
-            dto.setConfidence(confObj instanceof Integer ? (Integer) confObj : (Double) confObj);
-            dto.setXcenter((Double) map.get("xcenter"));
-            dto.setYcenter((Double) map.get("ycenter"));
-            dto.setWidth((Double) map.get("width"));
-            dto.setHeight((Double) map.get("height"));
-            return dto;
-        }).toList();
+    // 3. Gọi Python và hứng kết quả
+    RestTemplate restTemplate = new RestTemplate();
+    Map<String, Object> response = restTemplate.postForObject(pythonUrl, requestBody, Map.class);
 
-        return ApiResponse.<List<AiSuggestionDto>>builder().result(dtos).build();
-    }
+    // 4. Lấy mảng "result" ép kiểu trả về cho Frontend
+    List<Map<String, Object>> resultList = (List<Map<String, Object>>) response.get("result");
+
+    List<AiSuggestionDto> dtos = resultList.stream().map(map -> {
+      AiSuggestionDto dto = new AiSuggestionDto();
+      dto.setLabelName((String) map.get("labelName"));
+      Object confObj = map.get("confidence");
+      dto.setConfidence(confObj instanceof Integer ? (Integer) confObj : (Double) confObj);
+      dto.setXcenter((Double) map.get("xcenter"));
+      dto.setYcenter((Double) map.get("ycenter"));
+      dto.setWidth((Double) map.get("width"));
+      dto.setHeight((Double) map.get("height"));
+      return dto;
+    }).toList();
+
+    return ApiResponse.<List<AiSuggestionDto>>builder().result(dtos).build();
+  }
 }

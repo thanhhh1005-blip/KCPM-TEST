@@ -1,9 +1,24 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify"; // 🌟 Import Toastify để hiện thông báo mượt
 import "./LoginPage.css";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 const LOGIN_ENDPOINT = `${API_BASE_URL}/api/auth/token`;
+
+// 🌟 1. THÊM HÀM GIẢI MÃ TOKEN Ở NGOÀI COMPONENT
+function parseJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+}
 
 function LoginPage() {
   const [username, setUsername] = useState("");
@@ -11,7 +26,7 @@ function LoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const navigate = useNavigate(); // 2. KHỞI TẠO BIẾN ĐIỀU HƯỚNG
+  const navigate = useNavigate();
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -34,12 +49,38 @@ function LoginPage() {
         return;
       }
 
-      // 3. ĐÂY LÀ ĐIỂM QUAN TRỌNG: Lưu token và chuyển trang thẳng vào Admin
-      localStorage.setItem("token", payload.result.token);
-      navigate("/admin/users"); 
+      // Lưu token vào máy
+      const token = payload.result.token;
+      localStorage.setItem("token", token);
+      
+      // 🌟 2. GIẢI MÃ TOKEN VÀ ĐIỀU HƯỚNG THÔNG MINH
+      const decoded = parseJwt(token);
+      
+      if (decoded) {
+        // Lấy Role từ token ra (đảm bảo viết hoa để dễ so sánh)
+        let rawRole = decoded.scope || decoded.role || decoded.roles || "";
+        let role = String(rawRole).toUpperCase();
+
+        // Hiện thông báo thành công xịn sò
+        toast.success("Đăng nhập thành công!"); 
+
+        // KIỂM TRA ROLE VÀ ĐẨY ĐI ĐÚNG TRANG
+        if (role.includes("ADMIN") || role.includes("MANAGER")) {
+          // Sếp thì vào thẳng trang Quản lý dự án
+          navigate("/admin/projects"); 
+        } else if (role.includes("ANNOTATOR") || role.includes("REVIEWER")) {
+          // Lính thì vào thẳng trang Nhiệm vụ của tôi
+          navigate("/my-tasks"); 
+        } else {
+          // Nếu không rõ role nào thì cho về trang chủ
+          navigate("/"); 
+        }
+      } else {
+        navigate("/");
+      }
       
     } catch (err) {
-      console.error("Lỗi chi tiết:", err); // In ra log thật để dễ debug
+      console.error("Lỗi chi tiết:", err);
       setError("Không thể kết nối đến máy chủ hoặc có lỗi xử lý.");
     } finally {
       setIsLoading(false);
@@ -52,8 +93,7 @@ function LoginPage() {
         
         {/* Phần Logo & Tiêu đề */}
         <div className="login-header">
-          <div className="logo-icon">g
-            {/* Vẽ một icon đơn giản bằng CSS/SVG đại diện cho Data Labeling */}
+          <div className="logo-icon">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
               <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>

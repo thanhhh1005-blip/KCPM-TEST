@@ -14,6 +14,10 @@ public interface IDataItemRepository extends JpaRepository<DataItem, String> {
 
   List<DataItem> findByProjectIdAndStatus(String projectId, DataItemStatus status);
   List<DataItem> findByProjectIdAndStatusIn(String projectId, List<DataItemStatus> statuses);
-
-  
+  // Đếm tổng số ảnh của 1 dự án
+  long countByProjectId(String projectId);
+    
+  // Đếm số ảnh theo trạng thái của 1 dự án
+  long countByProjectIdAndStatus(String projectId, DataItemStatus status);
+  long countByProjectIdAndStatusIn(String projectId, List<DataItemStatus> statuses);
 }

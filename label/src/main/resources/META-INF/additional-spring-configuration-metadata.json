@@ -1,5 +1,32 @@
-{"properties": [{
-  "name": "jwt.signer-key",
-  "type": "java.lang.String",
-  "description": "A description for 'jwt.signer-key'"
-}]}
+{"properties": [
+  {
+    "name": "jwt.signer-key",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.signer-key'"
+  },
+  {
+    "name": "jwt.valid-duration",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.valid-duration'"
+  },
+  {
+    "name": "jwt.refreshable-duration",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.refreshable-duration'"
+  },
+  {
+    "name": "cloudinary.cloud-name",
+    "type": "java.lang.String",
+    "description": "A description for 'cloudinary.cloud-name'"
+  },
+  {
+    "name": "cloudinary.api-key",
+    "type": "java.lang.String",
+    "description": "A description for 'cloudinary.api-key'"
+  },
+  {
+    "name": "cloudinary.api-secret",
+    "type": "java.lang.String",
+    "description": "A description for 'cloudinary.api-secret'"
+  }
+]}

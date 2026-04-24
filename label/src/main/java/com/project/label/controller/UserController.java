@@ -17,6 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -44,13 +48,19 @@ public class UserController {
   
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
   @GetMapping("/users")
-  public ApiResponse<List<UserResponse>> getUsers() {
+  public ApiResponse<Page<UserResponse>> getUsers(
+    @RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "10") int size,
+    @RequestParam(required = false, defaultValue = "") String search
+  ) {
     var authentication = SecurityContextHolder.getContext().getAuthentication();
     log.info("Username: {}", authentication.getName());
     authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
 
-    return ApiResponse.<List<UserResponse>>builder()
-                      .result(userService.getUsers())
+    Pageable pageable = PageRequest.of(page, size);
+
+    return ApiResponse.<Page<UserResponse>>builder()
+                      .result(userService.getAllUsers(search, pageable))
                       .build();
   }
   

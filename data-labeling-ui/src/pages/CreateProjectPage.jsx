@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
   ? `${import.meta.env.VITE_API_BASE_URL}/api`
@@ -43,19 +44,22 @@ const CreateProjectPage = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/users`, {
+      // 🌟 THÊM ?size=1000 VÀO URL: Ép lấy tối đa 1000 user để không bị sót Reviewer nằm ở trang sau
+      const response = await fetch(`${API_BASE_URL}/users?size=1000`, {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       const data = await response.json();
 
       if (data.result) {
-        // Lọc người dùng có quyền MANAGER
-        const managerList = data.result.filter(
-          (user) => user.roles && user.roles.some((r) => r.name === "MANAGER"),
+        // Trích xuất an toàn dù Backend có phân trang hay không
+        const userArray = data.result.content ? data.result.content : data.result;
+
+        // 🌟 DÙNG .includes() ĐỂ BẮT ĐƯỢC CẢ "REVIEWER" LẪN "ROLE_REVIEWER"
+        const managerList = userArray.filter(
+          (user) => user.roles && user.roles.some((r) => r.name.includes("MANAGER")),
         );
-        // Lọc người dùng có thể làm REVIEWER (Giả sử Manager cũng có thể review)
-        const reviewerList = data.result.filter(
-          (user) => user.roles && user.roles.some((r) => r.name === "REVIEWER"),
+        const reviewerList = userArray.filter(
+          (user) => user.roles && user.roles.some((r) => r.name.includes("REVIEWER")),
         );
 
         setManagers(managerList);
@@ -86,11 +90,11 @@ const CreateProjectPage = () => {
 
     // Validate
     if (isAdmin && !formData.managerId) {
-      alert("Admin vui lòng chỉ định một Manager cho dự án này!");
+      toast.warning("Admin vui lòng chỉ định một Manager cho dự án này!");
       return;
     }
     if (!formData.reviewerId) {
-      alert("Vui lòng chỉ định một Reviewer để duyệt nhãn!");
+      toast.warning("Vui lòng chỉ định một Reviewer để duyệt nhãn!");
       return;
     }
 
@@ -113,14 +117,14 @@ const CreateProjectPage = () => {
       });
 
       if (response.ok) {
-        alert("Tạo dự án thành công!");
+        toast.success("Tạo dự án thành công!");
         navigate("/admin/projects");
       } else {
         const errorData = await response.json();
-        alert("Lỗi: " + (errorData.message || "Không thể tạo dự án"));
+        toast.error("Lỗi: " + (errorData.message || "Không thể tạo dự án"));
       }
     } catch (error) {
-      alert("Lỗi kết nối");
+      toast.error("Lỗi kết nối");
     } finally {
       setIsLoading(false);
     }

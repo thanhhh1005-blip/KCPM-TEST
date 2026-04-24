@@ -18,13 +18,13 @@ spring:
     
 jwt:
   signerKey: "be4a8798222ebe35de31c52e483770c9efe2be0c2d0c9aa209ca48b27faf7d83"
-  valid-duration: 1 # in seconds
-  refreshable-duration: 3 # in seconds
+  valid-duration: 1 # in hours
+  refreshable-duration: 3 # in hours
 
 cloudinary:
   cloud-name: "djcvbbhup"
   api-key: "915878471116958"
   api-secret: "Wo8Zrd_XgB-_5ZHj2fYQyXCzzns"
-
+# python -m uvicorn main:app --reload --port 8000
 
   

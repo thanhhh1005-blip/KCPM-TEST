@@ -2,6 +2,7 @@
   "dependencies": {
     "konva": "^10.2.5",
     "react-konva": "^19.2.3",
+    "recharts": "^3.8.1",
     "use-image": "^1.1.4"
   }
 }

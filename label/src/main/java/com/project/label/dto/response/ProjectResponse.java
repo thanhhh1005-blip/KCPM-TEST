@@ -15,4 +15,6 @@ public class ProjectResponse {
     private int labelCount; // Số lượng nhãn
     private int dataItemCount; // Số lượng ảnh
     private LocalDateTime createdAt;
+    private long pendingItemCount;
+    private long approvedItemCount;
 }

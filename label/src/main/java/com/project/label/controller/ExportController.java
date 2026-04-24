@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -15,10 +16,21 @@ public class ExportController {
 
     private final ExportService exportService;
 
-    @GetMapping("/yolo/{projectId}")
-    public void exportYolo(@PathVariable String projectId, HttpServletResponse response) {
+    // Đổi tên API thành /{projectId} cho tổng quát
+    @GetMapping("/{projectId}")
+    public void exportDataset(
+            @PathVariable String projectId,
+            // 🌟 Hứng tham số format từ React (Mặc định là YOLO)
+            @RequestParam(defaultValue = "YOLO") String format, 
+            HttpServletResponse response) {
         try {
-            exportService.exportYoloDataset(projectId, response);
+            // Đặt tên file tải về linh hoạt theo định dạng
+            response.setContentType("application/zip");
+            response.setHeader("Content-Disposition", "attachment; filename=\"dataset_" + projectId + "_" + format + ".zip\"");
+
+            // Gọi Service và truyền thêm biến format
+            exportService.exportDatasetFlexible(projectId, format, response);
+            
         } catch (Exception e) {
             throw new RuntimeException("Lỗi khi xuất file: " + e.getMessage());
         }

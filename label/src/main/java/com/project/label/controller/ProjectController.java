@@ -1,6 +1,9 @@
 package com.project.label.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -8,6 +11,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,11 +19,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.project.label.dto.request.MemberAssignRequest;
 import com.project.label.dto.request.ProjectCreationRequest;
 import com.project.label.dto.response.ApiResponse;
+import com.project.label.dto.response.DashBoardStatsResponse;
 import com.project.label.dto.response.ProjectMemberResponse;
 import com.project.label.dto.response.ProjectResponse;
 import com.project.label.dto.response.UserResponse;
 import com.project.label.entity.Project;
 import com.project.label.entity.User;
+import com.project.label.enums.DataItemStatus;
+import com.project.label.repository.IAnnotationRepository;
+import com.project.label.repository.IDataItemRepository;
 import com.project.label.repository.IProjectRepository;
 import com.project.label.repository.IUserRepository;
 import com.project.label.service.ProjectService;
@@ -35,7 +43,8 @@ public class ProjectController {
     ProjectService projectService;
     IUserRepository userRepository;
     IProjectRepository projectRepository;
-
+    IDataItemRepository dataItemRepository;
+    IAnnotationRepository annotationRepository;
     @PostMapping
     public ApiResponse<Project> createProject(@RequestBody ProjectCreationRequest request) {
         return ApiResponse.<Project>builder()
@@ -43,6 +52,14 @@ public class ProjectController {
                 .build();
     }
 
+    @GetMapping("/{projectId}")
+    public ApiResponse<ProjectResponse> getProjectById(@PathVariable String projectId) {
+        ProjectResponse response = projectService.getProjectById(projectId);
+        
+        return ApiResponse.<ProjectResponse>builder()
+                .result(response)
+                .build();
+    }
     @GetMapping
     public ApiResponse<List<ProjectResponse>> getAllProjects() {
         return ApiResponse.<List<ProjectResponse>>builder()
@@ -75,30 +92,41 @@ public class ProjectController {
 
     @GetMapping("/my-projects")
     public ApiResponse<List<ProjectResponse>> getMyProjects() {
-        // Gọi xuống Service để lấy danh sách dự án mà user hiện tại tham gia
+        // 🌟 1. Lấy username của người đang đăng nhập (Annotator)
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // 🌟 2. Gọi ĐÚNG CÁI HÀM getMyProjects mà chúng ta đã sửa trong Service
         return ApiResponse.<List<ProjectResponse>>builder()
-                .result(projectService.getMyAssignedProjects())
+                .result(projectService.getMyProjects(currentUsername))
                 .build();
     }
 
     @GetMapping("/reviewer/my-projects")
     public ApiResponse<List<ProjectResponse>> getMyReviewProjects() { // 🌟 Đổi sang List<ProjectResponse>
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        User currentUser = userRepository.findByUsername(currentUsername).orElseThrow();
-
-        // 1. Lấy danh sách Entity
-        List<Project> projects = projectRepository.findByReviewer_Id(currentUser.getId());
-
-        // 2. Map Entity sang DTO để lọc sạch các vòng lặp rác
-        List<ProjectResponse> projectResponses = projects.stream().map(p -> ProjectResponse.builder()
-                .id(p.getId())
-                .name(p.getName())
-                .description(p.getDescription())
-                // ... map các field cần thiết khác
-                .build()).collect(Collectors.toList());
-
+        List<ProjectResponse> result = projectService.getMyReviewProjects(currentUsername);
         return ApiResponse.<List<ProjectResponse>>builder()
-                .result(projectResponses) // 🌟 Trả về DTO
+                .result(result) // 🌟 Trả về DTO
                 .build();
+    } 
+
+    @GetMapping("/{projectId}/dashboard")
+    public ApiResponse<DashBoardStatsResponse> getProjectDashboard(@PathVariable String projectId) {
+        
+        DashBoardStatsResponse result = projectService.getProjectDashboard(projectId);
+
+        return ApiResponse.<DashBoardStatsResponse>builder().result(result).build();
+    }
+
+    @PutMapping("/{id}")
+    public ApiResponse<Void> updateProject(@PathVariable String id, @RequestBody ProjectCreationRequest request) {
+        projectService.updateProject(id, request);
+        return ApiResponse.<Void>builder().message("Cập nhật dự án thành công").build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> deleteProject(@PathVariable String id) {
+        projectService.deleteProject(id);
+        return ApiResponse.<Void>builder().message("Xóa dự án thành công").build();
     }
 }
