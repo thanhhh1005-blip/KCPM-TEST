@@ -46,6 +46,15 @@ public class UserController {
     return response;
   }
   
+
+  @PostMapping("/register")
+  public ApiResponse<User> registUser(@RequestBody @Valid UserCreationRequest request) {
+    ApiResponse<User> response = new ApiResponse<User>();
+    request.setRoles(null);
+    response.setResult(userService.createUser(request));
+    return response;
+  }
+
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
   @GetMapping("/users")
   public ApiResponse<Page<UserResponse>> getUsers(

@@ -153,3 +153,34 @@
   border-radius: 4px;
   color: #475569;
 }
+
+.auth-switch {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #64748b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: #4f46e5;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+}
+
+.btn-link:hover {
+  text-decoration: underline;
+}
+
+/* Hiển thị 2 ô input trên cùng 1 hàng (Dành cho Họ/Tên hoặc Mật khẩu) */
+.form-row {
+  display: flex;
+  gap: 15px;
+}

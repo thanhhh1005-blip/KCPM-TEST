@@ -148,11 +148,13 @@ function LoginPage() {
             {isLoading ? <span className="loader"></span> : "Đăng Nhập"}
           </button>
         </form>
-
-        {/* Footer của form */}
-        <div className="login-footer">
-          Đang kết nối tới: <span>{API_BASE_URL}</span>
+        <div className="auth-switch">
+          <span>Chưa có tài khoản?</span>
+          <button type="button" className="btn-link" onClick={() => navigate("/register")}>
+            Đăng ký ngay
+          </button>
         </div>
+
       </div>
     </div>
   );

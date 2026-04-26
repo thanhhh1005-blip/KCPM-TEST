@@ -15,7 +15,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import ReviewWorkspace from './pages/ReviewWorkspace';
 import AdminDashboardPage from './pages/AdminDashboardPage'
 import AuditLogPage from './pages/AuditLogPage';
-import SystemConfigPage from './pages/SystemConfigPage';
+import SystemConfigPage from './pages/SystemConfigPage';  
+import RegisterPage from "./pages/RegisterPage";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
     <Routes>
       <Route path="/" element={<LoginPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
       <Route path="/workspace/:projectId" element={
       <ProtectedRoute allowedRoles={['ANNOTATOR']}>
         <LabelWorkspace />
