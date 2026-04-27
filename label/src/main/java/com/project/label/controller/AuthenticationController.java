@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nimbusds.jose.JOSEException;
 import com.project.label.dto.request.AuthenticationRequest;
+import com.project.label.dto.request.GoogleLoginRequest;
 import com.project.label.dto.request.IntrospectRequest;
 import com.project.label.dto.request.LogoutRequest;
 import com.project.label.dto.request.RefreshRequest;
@@ -22,7 +23,6 @@ import java.text.ParseException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -33,37 +33,43 @@ public class AuthenticationController {
   AuthenticationService authenticationService;
 
   @PostMapping("/token")
-  public ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
-    var result =authenticationService.authenticate(request);
+  public ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
+    var result = authenticationService.authenticate(request);
     return ApiResponse.<AuthenticationResponse>builder()
-                      .result(result)
-                      .build();  
+        .result(result)
+        .build();
   }
-  
+
   @PostMapping("/introspect")
   public ApiResponse<IntrospectResponse> introspect(@RequestBody IntrospectRequest request)
-    throws ParseException, JOSEException{
-    var result =authenticationService.introspect(request);
+      throws ParseException, JOSEException {
+    var result = authenticationService.introspect(request);
     return ApiResponse.<IntrospectResponse>builder()
-                      .result(result)
-                      .build();  
+        .result(result)
+        .build();
   }
 
   @PostMapping("/logout")
   public ApiResponse<Void> logout(@RequestBody LogoutRequest request)
-    throws ParseException, JOSEException{
+      throws ParseException, JOSEException {
     authenticationService.logout(request);
     return ApiResponse.<Void>builder()
-                      .build();  
+        .build();
   }
 
-
   @PostMapping("/refresh")
-  public ApiResponse<AuthenticationResponse> refreshToken(@RequestBody RefreshRequest request) throws ParseException, JOSEException{
-    var result =authenticationService.refreshToken(request);
+  public ApiResponse<AuthenticationResponse> refreshToken(@RequestBody RefreshRequest request)
+      throws ParseException, JOSEException {
+    var result = authenticationService.refreshToken(request);
     log.info("Refreshed token: {}", result.getToken());
     return ApiResponse.<AuthenticationResponse>builder()
-                      .result(result)
-                      .build();  
+        .result(result)
+        .build();
+  }
+
+  @PostMapping("/google")
+  public ApiResponse<AuthenticationResponse> googleLogin(@RequestBody GoogleLoginRequest request) {
+    AuthenticationResponse result = authenticationService.authenticateWithGoogle(request.getToken());
+    return ApiResponse.<AuthenticationResponse>builder().result(result).build();
   }
 }

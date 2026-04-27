@@ -1,19 +1,27 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify"; // 🌟 Import Toastify để hiện thông báo mượt
+import { toast } from "react-toastify";
 import "./LoginPage.css";
+import { GoogleLogin } from "@react-oauth/google";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 const LOGIN_ENDPOINT = `${API_BASE_URL}/api/auth/token`;
 
-// 🌟 1. THÊM HÀM GIẢI MÃ TOKEN Ở NGOÀI COMPONENT
+// 🌟 1. HÀM GIẢI MÃ TOKEN Ở NGOÀI COMPONENT
 function parseJwt(token) {
   try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      window
+        .atob(base64)
+        .split("")
+        .map(function (c) {
+          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join("")
+    );
     return JSON.parse(jsonPayload);
   } catch (e) {
     return null;
@@ -28,6 +36,9 @@ function LoginPage() {
 
   const navigate = useNavigate();
 
+  // ==========================================
+  // HÀM 1: XỬ LÝ ĐĂNG NHẬP BẰNG TÀI KHOẢN
+  // ==========================================
   async function handleSubmit(event) {
     event.preventDefault();
     setError("");
@@ -43,54 +54,88 @@ function LoginPage() {
       const payload = await response.json().catch(() => null);
 
       if (!response.ok || !payload?.result?.token) {
-        setError(
-          payload?.message || "Tên đăng nhập hoặc mật khẩu không chính xác."
-        );
+        setError(payload?.message || "Tên đăng nhập hoặc mật khẩu không chính xác.");
         return;
       }
 
-      // Lưu token vào máy
       const token = payload.result.token;
       localStorage.setItem("token", token);
-      
-      // 🌟 2. GIẢI MÃ TOKEN VÀ ĐIỀU HƯỚNG THÔNG MINH
       const decoded = parseJwt(token);
-      
+
       if (decoded) {
-        // Lấy Role từ token ra (đảm bảo viết hoa để dễ so sánh)
         let rawRole = decoded.scope || decoded.role || decoded.roles || "";
         let role = String(rawRole).toUpperCase();
+        toast.success("Đăng nhập thành công!");
 
-        // Hiện thông báo thành công xịn sò
-        toast.success("Đăng nhập thành công!"); 
-
-        // KIỂM TRA ROLE VÀ ĐẨY ĐI ĐÚNG TRANG
         if (role.includes("ADMIN") || role.includes("MANAGER")) {
-          // Sếp thì vào thẳng trang Quản lý dự án
-          navigate("/admin/projects"); 
+          navigate("/admin/projects");
         } else if (role.includes("ANNOTATOR") || role.includes("REVIEWER")) {
-          // Lính thì vào thẳng trang Nhiệm vụ của tôi
-          navigate("/my-tasks"); 
+          navigate("/my-tasks");
         } else {
-          // Nếu không rõ role nào thì cho về trang chủ
-          navigate("/"); 
+          navigate("/");
         }
       } else {
         navigate("/");
       }
-      
     } catch (err) {
       console.error("Lỗi chi tiết:", err);
       setError("Không thể kết nối đến máy chủ hoặc có lỗi xử lý.");
     } finally {
       setIsLoading(false);
     }
-  }
+  } // <-- Đóng hàm handleSubmit tại đây
 
+  // ==========================================
+  // HÀM 2: XỬ LÝ ĐĂNG NHẬP BẰNG GOOGLE
+  // ==========================================
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setIsLoading(true);
+    setError("");
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: credentialResponse.credential }),
+      });
+
+      const payload = await response.json();
+
+      if (response.ok && payload?.result?.token) {
+        const token = payload.result.token;
+        localStorage.setItem("token", token);
+
+        // Giải mã và chuyển trang y hệt như đăng nhập thường
+        const decoded = parseJwt(token);
+        if (decoded) {
+          let rawRole = decoded.scope || decoded.role || decoded.roles || "";
+          let role = String(rawRole).toUpperCase();
+          toast.success("Đăng nhập Google thành công!");
+
+          if (role.includes("ADMIN") || role.includes("MANAGER")) {
+            navigate("/admin/projects");
+          } else if (role.includes("ANNOTATOR") || role.includes("REVIEWER")) {
+            navigate("/my-tasks");
+          } else {
+            navigate("/");
+          }
+        }
+      } else {
+        setError("Đăng nhập Google thất bại từ máy chủ.");
+      }
+    } catch (err) {
+      setError("Lỗi kết nối đến máy chủ.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ==========================================
+  // GIAO DIỆN MÀN HÌNH (JSX)
+  // ==========================================
   return (
     <div className="login-wrapper">
       <div className="login-box">
-        
         {/* Phần Logo & Tiêu đề */}
         <div className="login-header">
           <div className="logo-icon">
@@ -104,6 +149,21 @@ function LoginPage() {
           <p>Đăng nhập để vào không gian làm việc</p>
         </div>
 
+        {/* 🌟 NÚT ĐĂNG NHẬP GOOGLE */}
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => {
+              setError("Xác thực Google thất bại!");
+            }}
+          />
+        </div>
+
+        {/* Chữ "Hoặc" để chia tách form */}
+        <div style={{ textAlign: "center", marginBottom: "20px", color: "#94a3b8", fontSize: "14px" }}>
+          hoặc đăng nhập bằng tài khoản
+        </div>
+
         {/* Phần Form nhập liệu */}
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
@@ -115,7 +175,6 @@ function LoginPage() {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Nhập tài khoản của bạn"
               required
-              autoFocus
             />
           </div>
 
@@ -148,9 +207,14 @@ function LoginPage() {
             {isLoading ? <span className="loader"></span> : "Đăng Nhập"}
           </button>
         </form>
+
         <div className="auth-switch">
           <span>Chưa có tài khoản?</span>
-          <button type="button" className="btn-link" onClick={() => navigate("/register")}>
+          <button
+            type="button"
+            className="btn-link"
+            onClick={() => navigate("/register")}
+          >
             Đăng ký ngay
           </button>
         </div>

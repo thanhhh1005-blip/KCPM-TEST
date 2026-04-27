@@ -19,7 +19,10 @@ const SystemConfigPage = () => {
         headers: { 'Authorization': `Bearer ${getToken()}` }
       });
       const data = await response.json();
-      if (data.result) setConfigs(data.result);
+      if (data.result) {
+        // Tự động load dữ liệu từ DB (Đã xóa YOLO trong DB thì ở đây sẽ không còn)
+        setConfigs(data.result);
+      }
     } catch (error) {
       console.error("Lỗi tải cấu hình:", error);
     } finally {
@@ -33,18 +36,20 @@ const SystemConfigPage = () => {
         method: 'PUT',
         headers: { 
           'Authorization': `Bearer ${getToken()}`,
-          'Content-Type': 'application/json' // Backend đang dùng @RequestBody String
+          'Content-Type': 'text/plain' // Gửi dạng text thô theo chuẩn của Backend
         },
-        body: newValue // Truyền thẳng chuỗi string theo đúng chuẩn API
+        body: String(newValue) 
       });
+
       if (response.ok) {
         toast.success(`Đã lưu thay đổi cho [${key}]`);
-        fetchConfigs();
+        fetchConfigs(); 
       } else {
-        toast.error("Lưu thất bại!");
+        toast.error("Lưu thất bại! Vui lòng kiểm tra lại.");
       }
     } catch (error) {
       console.error(error);
+      toast.error("Lỗi kết nối đến máy chủ.");
     }
   };
 
@@ -60,27 +65,41 @@ const SystemConfigPage = () => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '800px' }}>
         {configs.length === 0 ? (
           <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '8px', color: '#ef4444' }}>
-            ⚠️ Chưa có dữ liệu cấu hình trong Database. Hãy thêm dữ liệu (ví dụ: MAX_UPLOAD_SIZE) vào bảng system_config.
+            ⚠️ Chưa có dữ liệu cấu hình trong Database. Hãy chạy lệnh INSERT vào bảng system_config.
           </div>
         ) : (
           configs.map(item => (
             <div key={item.key} style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-              <div style={{ flex: 1 }}>
+              
+              <div style={{ flex: 1, paddingRight: '20px' }}>
                 <strong style={{ fontSize: '16px', color: '#3b82f6' }}>{item.key}</strong>
                 <div style={{ fontSize: '14px', color: '#64748b', marginTop: '6px' }}>{item.description}</div>
               </div>
               
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                <input 
-                  type="text" 
-                  defaultValue={item.value} 
-                  // 🌟 Khi click chuột ra ngoài (onBlur), nếu giá trị thay đổi thì tự động lưu
-                  onBlur={(e) => {
-                    if (e.target.value !== item.value) handleUpdate(item.key, e.target.value);
-                  }}
-                  style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', width: '200px', fontSize: '14px', outline: 'none' }}
-                />
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                {/* NHẬN DIỆN TRUE/FALSE ĐỂ HIỆN DROPDOWN BẬT/TẮT */}
+                {item.value === 'true' || item.value === 'false' ? (
+                  <select 
+                    defaultValue={item.value}
+                    onChange={(e) => handleUpdate(item.key, e.target.value)}
+                    style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', width: '200px', fontSize: '14px', outline: 'none', backgroundColor: '#fff', cursor: 'pointer' }}
+                  >
+                    <option value="true">Bật (True)</option>
+                    <option value="false">Tắt (False)</option>
+                  </select>
+                ) : (
+                  /* CÁC TRƯỜNG HỢP CÒN LẠI (SỐ, CHỮ) SẼ HIỆN Ô NHẬP TEXT */
+                  <input 
+                    type="text" 
+                    defaultValue={item.value} 
+                    onBlur={(e) => {
+                      if (e.target.value !== item.value) handleUpdate(item.key, e.target.value);
+                    }}
+                    style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', width: '178px', fontSize: '14px', outline: 'none' }}
+                  />
+                )}
               </div>
+
             </div>
           ))
         )}

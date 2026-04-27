@@ -3,7 +3,11 @@ package com.project.label.service;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.UUID;
 
@@ -34,7 +38,15 @@ import com.project.label.entity.User;
 import com.project.label.exception.AppException;
 import com.project.label.exception.ErrorCode;
 import com.project.label.repository.IInvalidatedTokenRepository;
+import com.project.label.repository.IRoleRepository;
+import com.project.label.repository.ISystemConfigRepository;
 import com.project.label.repository.IUserRepository;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+import com.project.label.entity.Role;
+import com.project.label.entity.SystemConfig;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -48,7 +60,8 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthenticationService {
   IUserRepository userRepository;
   IInvalidatedTokenRepository invalidatedTokenRepository;
-
+  IRoleRepository roleRepository;
+  ISystemConfigRepository systemConfigRepository;
   @NonFinal
   @Value("${jwt.signerKey}")
   protected String SIGNER_KEY;
@@ -68,6 +81,16 @@ public class AuthenticationService {
     boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
     if(!authenticated){
       throw new AppException(ErrorCode.UNAUTHENTICATED);
+    }
+
+    String isMaintenance = systemConfigRepository.findById("SYSTEM_MAINTENANCE")
+            .map(SystemConfig::getValue).orElse("false");
+
+    if ("true".equals(isMaintenance)) {
+        boolean isAdmin = user.getRoles().stream().anyMatch(r -> r.getName().equals("ADMIN"));
+        if (!isAdmin) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
     }
     var token = generateToken(user);
       return AuthenticationResponse.builder()
@@ -183,4 +206,61 @@ public class AuthenticationService {
               .authenticated(true)
               .build();
   }
+
+  public AuthenticationResponse authenticateWithGoogle(String googleToken) {
+    try {
+        // 1. Kiểm tra tính hợp lệ của mã Google gửi lên
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
+                .setAudience(Collections.singletonList("281539213677-9f1f638cvbr9067i1dl6imhm6qe4oavt.apps.googleusercontent.com"))
+                .build();
+
+        GoogleIdToken idToken = verifier.verify(googleToken);
+        
+        if (idToken != null) {
+            GoogleIdToken.Payload payload = idToken.getPayload();
+            String email = payload.getEmail();
+            String name = (String) payload.get("name");
+
+            // 2. Tìm trong DB xem email này đã từng đăng nhập chưa
+            // Tùy theo code cũ của bạn, có thể dùng findByUsername hoặc findByEmail
+            Optional<User> userOpt = userRepository.findByUsername(email); 
+            User user;
+            
+            if (userOpt.isPresent()) {
+                user = userOpt.get(); // Nếu có rồi thì lấy ra dùng
+            } else {
+                // 3. Nếu chưa có -> Tạo tài khoản mới tự động
+                user = new User();
+                user.setUsername(email); // Lấy luôn email làm username cho khỏi trùng
+                user.setEmail(email);
+                
+                // Tách họ tên (nếu thích)
+                String[] nameParts = name.split(" ", 2);
+                user.setFirstName(nameParts.length > 1 ? nameParts[1] : name);
+                user.setLastName(nameParts[0]);
+
+                // Băm một cái mật khẩu ngẫu nhiên (vì họ đăng nhập bằng GG nên k xài pass này)
+                user.setPassword(new BCryptPasswordEncoder(10).encode(UUID.randomUUID().toString()));
+
+                // Gán quyền ANNOTATOR mặc định
+                Role defaultRole = roleRepository.findById("ANNOTATOR").orElseThrow();
+                user.setRoles(new HashSet<>(List.of(defaultRole)));
+                
+                user = userRepository.save(user);
+            }
+
+            // 4. Tạo token nội bộ hệ thống và trả về cho React
+            String internalToken = generateToken(user);
+            return AuthenticationResponse.builder()
+                    .token(internalToken)
+                    .authenticated(true)
+                    .build();
+        } else {
+            throw new AppException(ErrorCode.UNAUTHENTICATED); // Mã lỗi của bạn
+        }
+    } catch (Exception e) {
+        log.error("Google authentication failed", e);
+        throw new AppException(ErrorCode.UNAUTHENTICATED);
+    }
+}
 }

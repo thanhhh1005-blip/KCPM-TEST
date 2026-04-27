@@ -7,6 +7,8 @@ import com.project.label.entity.ReviewLog;
 import com.project.label.entity.SystemConfig;
 import com.project.label.enums.DataItemStatus;
 import com.project.label.enums.ProjectStatus;
+import com.project.label.exception.AppException;
+import com.project.label.exception.ErrorCode;
 import com.project.label.repository.IDataItemRepository;
 import com.project.label.repository.IProjectRepository;
 import com.project.label.repository.IReviewLogRepository;
@@ -32,48 +34,49 @@ public class DatasetService {
   private final AuditLogService auditLogService;
   private final ISystemConfigRepository systemConfigRepository;
 
-  // Annotation này đảm bảo: Upload lỗi giữa chừng thì không lưu DB linh tinh
   @Transactional
-  public List<String> uploadAndSaveDataset(List<MultipartFile> files, String projectId) {
+    public List<String> uploadAndSaveDataset(List<MultipartFile> files, String projectId) {
+        Project currentProject = projectRepository.findById(projectId)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy dự án với ID: " + projectId));
 
-    Project currentProject = projectRepository.findById(projectId)
-        .orElseThrow(() -> new RuntimeException("Không tìm thấy dự án với ID: " + projectId));
-    SystemConfig sizeConfig = systemConfigRepository.findById("MAX_UPLOAD_SIZE_MB").orElse(null);
-    long maxMb = (sizeConfig != null) ? Long.parseLong(sizeConfig.getValue()) : 5L;
-    long maxBytes = maxMb * 1024 * 1024;
-    List<String> uploadedUrls = new ArrayList<>();
+        // CHỈ CÒN LẠI CẤU HÌNH KIỂM TRA DUNG LƯỢNG
+        SystemConfig sizeConfig = systemConfigRepository.findById("MAX_UPLOAD_SIZE_MB").orElse(null);
+        long maxMb = (sizeConfig != null) ? Long.parseLong(sizeConfig.getValue()) : 5L;
+        long maxBytes = maxMb * 1024 * 1024;
+        
+        List<String> uploadedUrls = new ArrayList<>();
 
-    try {
-      for (MultipartFile file : files) {
-        if (file.getSize() > maxBytes) {
-          throw new RuntimeException("CẢNH BÁO: File '" + file.getOriginalFilename() +
-              "' quá nặng! Hệ thống chỉ cho phép tối đa " + maxMb + "MB.");
+        try {
+            for (MultipartFile file : files) {
+                // Kiểm tra dung lượng (Size)
+                if (file.getSize() > maxBytes) {
+                    throw new AppException(ErrorCode.OVERLOAD_FILE);
+                }
+
+                // KHÔNG CẦN KIỂM TRA ĐUÔI FILE NỮA -> UPLOAD LUÔN
+                String url = cloudinaryService.uploadImage(file);
+                uploadedUrls.add(url);
+
+                // Lưu Database
+                DataItem item = DataItem.builder()
+                    .fileName(file.getOriginalFilename())
+                    .fileUrl(url)
+                    .status(DataItemStatus.UNLABELED)
+                    .project(currentProject)
+                    .build();
+                dataItemRepository.save(item);
+                
+                if (currentProject.getStatus() == ProjectStatus.COMPLETED) {
+                    currentProject.setStatus(ProjectStatus.IN_PROGRESS);
+                    projectRepository.save(currentProject);
+                }
+            }
+            return uploadedUrls;
+
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.OVERLOAD_FILE);
         }
-        // 1. Upload lên Cloud
-        String url = cloudinaryService.uploadImage(file);
-        uploadedUrls.add(url);
-
-        // 2. Lưu vào DB
-        DataItem item = DataItem.builder()
-            .fileName(file.getOriginalFilename())
-            .fileUrl(url)
-            .status(DataItemStatus.UNLABELED)
-            .project(currentProject)
-            .build();
-        dataItemRepository.save(item);
-        Project project = projectRepository.findById(projectId).orElseThrow();
-        if (project.getStatus() == ProjectStatus.COMPLETED) {
-          project.setStatus(ProjectStatus.IN_PROGRESS);
-          projectRepository.save(project);
-        }
-      }
-      return uploadedUrls;
-
-    } catch (Exception e) {
-      // Ném lỗi ra để Spring Boot kích hoạt Rollback Database
-      throw new RuntimeException("Lỗi trong quá trình xử lý ảnh: " + e.getMessage());
     }
-  }
 
   public List<DataItemResponse> getDatasetByProject(String projectId) {
     // Tìm tất cả DataItem theo ID dự án

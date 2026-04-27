@@ -38,6 +38,7 @@ public class SecurityConfig {
         "/auth/logout",
         "/auth/refresh",
         "/register",
+        "/auth/google",
         
     };
 

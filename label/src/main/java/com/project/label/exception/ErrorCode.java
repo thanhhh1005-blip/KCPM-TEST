@@ -14,6 +14,8 @@ public enum ErrorCode {
   PASSWORD_INVALID(1004,"Password must be between {min} characters", HttpStatus.BAD_REQUEST),
   UNAUTHENTICATED(1005,"Unauthenticated", HttpStatus.UNAUTHORIZED),
   UNAUTHORIZED(1007,"you don't have permission to access this resource", HttpStatus.FORBIDDEN),
+  UNDER_MAINTENANCE(1008, "The system is undergoing maintenance, please check back later.", HttpStatus.FORBIDDEN),
+  OVERLOAD_FILE(1009, "heavy file, over loading", HttpStatus.BAD_REQUEST),
   INVALID_DOB(1006,"Your age must be at least {min}", HttpStatus.BAD_REQUEST),
   ;
 
