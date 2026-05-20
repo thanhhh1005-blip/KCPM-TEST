@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IAnnotationRepository extends JpaRepository<Annotation, String> {
-    // 🌟 Xóa các nhãn cũ của ảnh trước khi lưu nhãn mới
+    //  Xóa các nhãn cũ của ảnh trước khi lưu nhãn mới
     void deleteByDataItemId(String dataItemId);
     List<Annotation> findByDataItemId(String dataItemId);
 

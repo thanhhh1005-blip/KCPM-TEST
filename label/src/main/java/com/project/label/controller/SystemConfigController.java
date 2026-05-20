@@ -35,7 +35,7 @@ public class SystemConfigController {
         config.setValue(newValue);
         SystemConfig updatedConfig = systemConfigRepository.save(config);
 
-        // 🌟 Ghi log lại luôn: Admin nào vừa đổi cấu hình?
+        //  Ghi log lại luôn: Admin nào vừa đổi cấu hình?
         auditLogService.logAction("UPDATE", "SYSTEM_CONFIG", 
             "Đổi " + key + " từ [" + oldValue + "] sang [" + newValue + "]", "SUCCESS");
 

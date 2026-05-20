@@ -85,7 +85,7 @@ const MyTasksPage = () => {
         >
           {projects.map((project) => {
             // ==========================================
-            // 🌟 LOGIC TRẠNG THÁI HOÀN CHỈNH
+            //  LOGIC TRẠNG THÁI HOÀN CHỈNH
             // ==========================================
 
             // 1. Các trạng thái tổng quan
@@ -139,7 +139,7 @@ const MyTasksPage = () => {
                   position: "relative",
                 }}
               >
-                {/* 🌟 HUY HIỆU (BADGE) GÓC PHẢI TRÊN */}
+                {/*  HUY HIỆU (BADGE) GÓC PHẢI TRÊN */}
                 <div
                   style={{ position: "absolute", top: "15px", right: "15px" }}
                 >
@@ -266,7 +266,7 @@ const MyTasksPage = () => {
                   {project.description || "Không có mô tả"}
                 </p>
 
-                {/* 🌟 NÚT BẤM ĐIỀU HƯỚNG */}
+                {/*  NÚT BẤM ĐIỀU HƯỚNG */}
                 <button
                   disabled={isButtonDisabled}
                   onClick={() =>

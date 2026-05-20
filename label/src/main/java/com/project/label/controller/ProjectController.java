@@ -92,21 +92,21 @@ public class ProjectController {
 
     @GetMapping("/my-projects")
     public ApiResponse<List<ProjectResponse>> getMyProjects() {
-        // 🌟 1. Lấy username của người đang đăng nhập (Annotator)
+        //  1. Lấy username của người đang đăng nhập (Annotator)
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        // 🌟 2. Gọi ĐÚNG CÁI HÀM getMyProjects mà chúng ta đã sửa trong Service
+        //  2. Gọi ĐÚNG CÁI HÀM getMyProjects mà chúng ta đã sửa trong Service
         return ApiResponse.<List<ProjectResponse>>builder()
                 .result(projectService.getMyProjects(currentUsername))
                 .build();
     }
 
     @GetMapping("/reviewer/my-projects")
-    public ApiResponse<List<ProjectResponse>> getMyReviewProjects() { // 🌟 Đổi sang List<ProjectResponse>
+    public ApiResponse<List<ProjectResponse>> getMyReviewProjects() { //  Đổi sang List<ProjectResponse>
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         List<ProjectResponse> result = projectService.getMyReviewProjects(currentUsername);
         return ApiResponse.<List<ProjectResponse>>builder()
-                .result(result) // 🌟 Trả về DTO
+                .result(result) //  Trả về DTO
                 .build();
     } 
 

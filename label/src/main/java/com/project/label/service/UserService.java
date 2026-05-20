@@ -64,7 +64,7 @@ public class UserService {
     User user = userMapper.toUser(request);
     user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-    // 🌟 LOGIC CẤP QUYỀN MỚI TẠI ĐÂY
+    //  LOGIC CẤP QUYỀN MỚI TẠI ĐÂY
     HashSet<Role> roles = new HashSet<>();
 
     // 1. Nếu Request có truyền danh sách Role (Tức là Admin đang dùng giao diện

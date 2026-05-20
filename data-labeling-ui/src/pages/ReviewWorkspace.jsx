@@ -56,11 +56,11 @@ const ReviewWorkspace = () => {
     });
     const data = await res.json();
 
-    // 🌟 THÊM DÒNG NÀY ĐỂ SOI XEM BACKEND ĐANG TRẢ VỀ TÊN BIẾN LÀ GÌ
+    //  THÊM DÒNG NÀY ĐỂ SOI XEM BACKEND ĐANG TRẢ VỀ TÊN BIẾN LÀ GÌ
     console.log("Dữ liệu Annotation từ Backend:", data.result);
 
     const mapped = data.result.map((ann) => {
-      // 🌟 "Phòng thủ": Lấy cả viết hoa lẫn viết thường, nếu không có thì cho bằng 0
+      //  "Phòng thủ": Lấy cả viết hoa lẫn viết thường, nếu không có thì cho bằng 0
       const xc = ann.xcenter !== undefined ? ann.xcenter : ann.xCenter;
       const yc = ann.ycenter !== undefined ? ann.ycenter : ann.yCenter;
       const w = ann.width;
@@ -117,7 +117,7 @@ const ReviewWorkspace = () => {
             Authorization: `Bearer ${getToken()}`,
             "Content-Type": "application/json",
           },
-          // 🌟 Gửi trường rejectReason nhưng chứa chuỗi đã ghép cực kỳ xịn sò
+          //  Gửi trường rejectReason nhưng chứa chuỗi đã ghép cực kỳ xịn sò
           body: JSON.stringify({ rejectReason: finalReason }),
         },
       );

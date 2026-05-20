@@ -35,11 +35,6 @@ public class AnnotationService {
     DataItem dataItem = dataItemRepository.findById(request.getDataItemId())
         .orElseThrow(() -> new RuntimeException("Không tìm thấy ảnh"));
 
-    // ==========================================
-    // 🌟 RÀO CHẮN CHỐNG GHI ĐÈ (RACE CONDITION)
-    // ==========================================
-    // Nếu bức ảnh này đã được nộp (LABELED) hoặc đã duyệt (APPROVED) bởi ai đó khác
-    // Thì lập tức ném lỗi, chặn đứng mọi thao tác bên dưới!
     if (dataItem.getStatus() == DataItemStatus.LABELED || dataItem.getStatus() == DataItemStatus.APPROVED) {
         throw new RuntimeException("CẢNH BÁO: Bức ảnh này vừa được người khác hoàn thành. Vui lòng tải lại trang (F5) để nhận ảnh mới!");
     }

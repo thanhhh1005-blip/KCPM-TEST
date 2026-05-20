@@ -83,7 +83,7 @@ const ProjectListPage = () => {
       });
       const data = await response.json();
       if (data.result) {
-        // 🌟 NẾU LÀ PAGE MỚI THÌ LẤY .content, CÒN LÀ LIST CŨ THÌ LẤY LUÔN data.result
+        //  NẾU LÀ PAGE MỚI THÌ LẤY .content, CÒN LÀ LIST CŨ THÌ LẤY LUÔN data.result
         if (data.result.content) {
           setUsers(data.result.content);
         } else {

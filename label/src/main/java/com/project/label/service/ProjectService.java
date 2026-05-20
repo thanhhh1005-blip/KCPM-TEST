@@ -80,8 +80,8 @@ public class ProjectService {
         .name(request.getName())
         .description(request.getDescription())
         .status(ProjectStatus.DRAFT)
-        .manager(manager) // 🌟 Gán Manager đã xử lý
-        .reviewer(reviewer) // 🌟 Gán Reviewer
+        .manager(manager) //  Gán Manager đã xử lý
+        .reviewer(reviewer) //  Gán Reviewer
         .build();
 
     Project savedProject = projectRepository.save(project);
@@ -95,7 +95,7 @@ public class ProjectService {
           .build()).collect(Collectors.toList());
       labelRepository.saveAll(labels);
     }
-    // 🌟 Đã thêm "SUCCESS" vào cuối cùng
+    //  Đã thêm "SUCCESS" vào cuối cùng
     auditLogService.logAction("CREATE", "PROJECT", "Đã tạo dự án mới: " + savedProject.getName(), "SUCCESS");
     return savedProject;
   }
@@ -112,7 +112,7 @@ public class ProjectService {
 
     List<Project> projects;
 
-    // 🌟 LOGIC LỌC: Admin thấy hết, Manager chỉ thấy dự án của mình
+    //  LOGIC LỌC: Admin thấy hết, Manager chỉ thấy dự án của mình
     if (isAdmin) {
       projects = projectRepository.findAll();
     } else {
@@ -122,7 +122,7 @@ public class ProjectService {
     return projects.stream().map(project -> {
 
       // ==========================================
-      // 🌟 LOGIC TỰ ĐỘNG CHUYỂN TRẠNG THÁI DỰ ÁN
+      //  LOGIC TỰ ĐỘNG CHUYỂN TRẠNG THÁI DỰ ÁN
       // ==========================================
 
       // Đếm số lượng ảnh và số ảnh đã duyệt của dự án này
@@ -152,7 +152,7 @@ public class ProjectService {
           .id(project.getId())
           .name(project.getName())
           .description(project.getDescription())
-          .status(calculatedStatus) // 🌟 Sử dụng trạng thái vừa tính toán
+          .status(calculatedStatus) //  Sử dụng trạng thái vừa tính toán
           .labelCount(project.getLabels() != null ? project.getLabels().size() : 0)
           .dataItemCount((int) totalItems) // Lấy con số thực tế luôn cho chuẩn xác
           .createdAt(project.getCreatedAt())
@@ -185,7 +185,7 @@ public class ProjectService {
         .collect(Collectors.toList());
   }
 
-  // 🌟 THÊM THÀNH VIÊN VỚI ROLE LINH HOẠT
+  //  THÊM THÀNH VIÊN VỚI ROLE LINH HOẠT
   @Transactional
   public void addProjectMember(String projectId, MemberAssignRequest request) {
     Project project = projectRepository.findById(projectId)
@@ -224,7 +224,7 @@ public class ProjectService {
     return ProjectResponse.builder()
         .id(project.getId())
         .name(project.getName())
-        .description(project.getDescription()) // 🌟 Chìa khóa để Frontend hiện chữ
+        .description(project.getDescription()) //  Chìa khóa để Frontend hiện chữ
         .status(project.getStatus())
         .createdAt(project.getCreatedAt())
         // Bạn có thể set thêm labelCount và dataItemCount nếu cần thiết
@@ -265,11 +265,11 @@ public class ProjectService {
   public List<ProjectResponse> getMyReviewProjects(String username) {
     User currentUser = userRepository.findByUsername(username).orElseThrow();
 
-    // 🌟 Phải gọi findByReviewer_Id
+    //  Phải gọi findByReviewer_Id
     List<Project> projects = projectRepository.findByReviewer_Id(currentUser.getId());
 
     return projects.stream().map(p -> {
-      // 🌟 Chỉ đếm ảnh LABELED (Đang chờ duyệt)
+      //  Chỉ đếm ảnh LABELED (Đang chờ duyệt)
       // Trong hàm getMyReviewProjects (của Reviewer)
       long pendingCount = dataItemRepository.countByProjectIdAndStatus(
           p.getId(),

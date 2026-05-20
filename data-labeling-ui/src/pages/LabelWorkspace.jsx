@@ -25,7 +25,7 @@ const LabelWorkspace = () => {
   const [currentItem, setCurrentItem] = useState(null);
   const [isLoadingItem, setIsLoadingItem] = useState(true);
 
-  // 🌟 STATES MỚI CHO QUẢN LÝ NHÃN (LABELS)
+  //  STATES MỚI CHO QUẢN LÝ NHÃN (LABELS)
   const [projectLabels, setProjectLabels] = useState([]);
   const [activeLabel, setActiveLabel] = useState(null); // Nhãn đang được chọn để vẽ
   const [isSaving, setIsSaving] = useState(false);
@@ -40,7 +40,7 @@ const LabelWorkspace = () => {
   const [imageSize, setImageSize] = useState({ width: 800, height: 600 });
 
   const [isAiLoading, setIsAiLoading] = useState(false);
-  // 🌟 GỌI API LẤY DANH SÁCH NHÃN & ẢNH KHI MỞ TRANG
+  //  GỌI API LẤY DANH SÁCH NHÃN & ẢNH KHI MỞ TRANG
   useEffect(() => {
     fetchProjectLabels();
     fetchNextImage();
@@ -50,7 +50,7 @@ const LabelWorkspace = () => {
   // Hàm 1: Lấy danh sách các Nhãn (Màu sắc, Tên) của dự án này
   const fetchProjectLabels = async () => {
     try {
-      // 🌟 Đổi đường dẫn URL sang gọi API chuyên lấy Label mà ta vừa viết
+      //  Đổi đường dẫn URL sang gọi API chuyên lấy Label mà ta vừa viết
       const response = await fetch(
         `${API_BASE_URL}/labels/project/${projectId}`,
         {
@@ -59,7 +59,7 @@ const LabelWorkspace = () => {
       );
       const data = await response.json();
 
-      // 🌟 Chỉnh lại cách đọc dữ liệu vì API trả về mảng trực tiếp trong data.result
+      //  Chỉnh lại cách đọc dữ liệu vì API trả về mảng trực tiếp trong data.result
       if (data.result && data.result.length > 0) {
         setProjectLabels(data.result);
         setActiveLabel(data.result[0]); // Mặc định chọn nhãn đầu tiên
@@ -85,7 +85,7 @@ const LabelWorkspace = () => {
       const data = await response.json();
 
       if (data.result && data.result.length > 0) {
-        // 🌟 TÌM ẢNH (Bao gồm cả ảnh Mới và ảnh Bị trả về)
+        //  TÌM ẢNH (Bao gồm cả ảnh Mới và ảnh Bị trả về)
         const nextItem = data.result.find(
           (item) => item.status === "UNLABELED" || item.status === "REJECTED",
         );
@@ -145,7 +145,7 @@ const LabelWorkspace = () => {
         id: Date.now().toString(),
         labelId: activeLabel.id,
         color: activeLabel.color,
-        labelName: activeLabel.name, // 🌟 THÊM ĐÚNG DÒNG NÀY ĐỂ LƯU TÊN NHÃN KHI VẼ TAY
+        labelName: activeLabel.name, //  THÊM ĐÚNG DÒNG NÀY ĐỂ LƯU TÊN NHÃN KHI VẼ TAY
       },
     ]);
   };
@@ -197,7 +197,7 @@ const LabelWorkspace = () => {
 
         // 1. Lặp qua kết quả AI để lọc và tính toán tọa độ
         data.result.forEach((aiBox, index) => {
-          // 🌟 TÌM KIẾM NGHIÊM NGẶT: Tên AI trả về phải khớp chính xác với nhãn dự án
+          //  TÌM KIẾM NGHIÊM NGẶT: Tên AI trả về phải khớp chính xác với nhãn dự án
           const matchedLabel = projectLabels.find(
             (l) => l.name.toLowerCase() === aiBox.labelName.toLowerCase(),
           );
@@ -271,7 +271,7 @@ const LabelWorkspace = () => {
       const startY = box.height < 0 ? box.y + box.height : box.y;
 
       return {
-        labelId: box.labelId, // 🌟 Đã lấy ID Nhãn thật từ khung vẽ
+        labelId: box.labelId, //  Đã lấy ID Nhãn thật từ khung vẽ
         xcenter: (startX + absWidth / 2) / imageSize.width,
         ycenter: (startY + absHeight / 2) / imageSize.height,
         width: absWidth / imageSize.width,
@@ -286,7 +286,7 @@ const LabelWorkspace = () => {
 
     setIsSaving(true);
     try {
-      // 🌟 GỌI API LƯU NHÃN (AnnotationController mà chúng ta đã làm ở Backend)
+      //  GỌI API LƯU NHÃN (AnnotationController mà chúng ta đã làm ở Backend)
       const response = await fetch(`${API_BASE_URL}/annotations`, {
         method: "POST",
         headers: {
@@ -462,7 +462,7 @@ const LabelWorkspace = () => {
                   />
                 )}
 
-                {/* 🌟 ĐÃ SỬA: Vẽ các khung ĐÃ vẽ kèm BẢNG TÊN & % */}
+                {/*  ĐÃ SỬA: Vẽ các khung ĐÃ vẽ kèm BẢNG TÊN & % */}
                 {annotations.map((rect, i) => {
                   const startX = rect.width < 0 ? rect.x + rect.width : rect.x;
                   const startY =
@@ -478,7 +478,7 @@ const LabelWorkspace = () => {
                         fill={hexToRgba(rect.color, 0.3)}
                         stroke={rect.color || "#3b82f6"}
                         strokeWidth={2}
-                        onDblClick={() => handleDeleteSingleBox(rect.id)} // 🌟 THÊM DÒNG NÀY
+                        onDblClick={() => handleDeleteSingleBox(rect.id)} //  THÊM DÒNG NÀY
                         // Thêm cursor pointer để báo hiệu có thể click
                         onMouseEnter={(e) => {
                           e.target.getStage().container().style.cursor =
@@ -699,7 +699,7 @@ const LabelWorkspace = () => {
             
             <div style={{ lineHeight: '1.6', color: '#334155' }}>
               
-              {/* 🌟 PHẦN 1: MÔ TẢ ĐẶC THÙ TỪ MANAGER (Lấy từ DB) */}
+              {/*  PHẦN 1: MÔ TẢ ĐẶC THÙ TỪ MANAGER (Lấy từ DB) */}
               <div style={{ padding: '15px', backgroundColor: '#eff6ff', borderLeft: '4px solid #3b82f6', borderRadius: '4px', marginBottom: '25px' }}>
                 <h4 style={{ margin: '0 0 10px 0', color: '#1d4ed8', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   🎯 Yêu cầu cụ thể của dự án:
@@ -710,7 +710,7 @@ const LabelWorkspace = () => {
                 </p>
               </div>
 
-              {/* 🌟 PHẦN 2: QUY TẮC CHUẨN CỦA HỆ THỐNG */}
+              {/*  PHẦN 2: QUY TẮC CHUẨN CỦA HỆ THỐNG */}
               <h4 style={{ margin: '0 0 10px 0', color: '#1e293b' }}>💡 Nguyên tắc gán nhãn chuẩn mực:</h4>
               <ul style={{ paddingLeft: '20px', marginTop: '0' }}>
                 <li style={{ marginBottom: '8px' }}>Khung vẽ phải <strong>ôm sát</strong> lề của vật thể, không để thừa quá nhiều khoảng trống.</li>

@@ -24,7 +24,7 @@ public class ReviewService {
     public void approve(String itemId) {
         DataItem item = dataItemRepository.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy ảnh"));
-        item.setStatus(DataItemStatus.APPROVED); // ✅ Duyệt!
+        item.setStatus(DataItemStatus.APPROVED); 
         dataItemRepository.save(item);
     }
 

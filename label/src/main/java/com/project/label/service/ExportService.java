@@ -95,7 +95,7 @@ public class ExportService {
                 for (Annotation ann : annotations) {
                     Integer classId = labelIndexMap.get(ann.getLabel().getId());
                     if (classId != null) {
-                        // 🌟 QUAN TRỌNG: Dùng Locale.US để in dấu chấm (0.5) thay vì dấu phẩy (0,5)
+                        //  QUAN TRỌNG: Dùng Locale.US để in dấu chấm (0.5) thay vì dấu phẩy (0,5)
                         String yoloLine = String.format(Locale.US, "%d %f %f %f %f\n",
                                 classId, ann.getXCenter(), ann.getYCenter(), ann.getWidth(), ann.getHeight());
                         yoloLabels.append(yoloLine);
@@ -121,7 +121,7 @@ public class ExportService {
         List<Map<String, Object>> annotationsList = new ArrayList<>();
         List<Map<String, Object>> categoriesList = new ArrayList<>();
 
-        // 🌟 SỬA Ở ĐÂY: Lấy danh sách các Nhãn (Label) của dự án này
+        //  SỬA Ở ĐÂY: Lấy danh sách các Nhãn (Label) của dự án này
         // Ví dụ: List<Label> labels = labelRepository.findByProjectId(projectId);
         List<Label> labels = labelRepository.findByProject_Id(projectId);
         
@@ -136,7 +136,7 @@ public class ExportService {
             catId++;
         }
 
-        // 🌟 SỬA Ở ĐÂY: Lấy danh sách các ảnh ĐÃ DUYỆT
+        //  SỬA Ở ĐÂY: Lấy danh sách các ảnh ĐÃ DUYỆT
         List<DataItem> dataset = dataItemRepository.findByProjectIdAndStatus(projectId, DataItemStatus.APPROVED);
         
         int imageId = 1;
@@ -147,7 +147,7 @@ public class ExportService {
             img.put("id", imageId);
             img.put("file_name", item.getFileName());
             
-            // 🌟 FIX 1: Gán cứng kích thước ảnh là 640x640 do DB không lưu
+            //  FIX 1: Gán cứng kích thước ảnh là 640x640 do DB không lưu
             img.put("width", 640);  
             img.put("height", 640);
             imagesList.add(img);
@@ -159,11 +159,11 @@ public class ExportService {
                 cocoAnn.put("id", annId++);
                 cocoAnn.put("image_id", imageId);
                 
-                // 🌟 FIX 2: Sửa cách lấy Tên Nhãn (Giả sử bạn dùng quan hệ @ManyToOne với bảng Label)
+                //  FIX 2: Sửa cách lấy Tên Nhãn (Giả sử bạn dùng quan hệ @ManyToOne với bảng Label)
                 String labelName = ann.getLabel().getName(); 
                 cocoAnn.put("category_id", categoryIdMap.getOrDefault(labelName, 1));
                 
-                // 🌟 FIX 3: Sửa lại tên Getter cho đúng với Entity của bạn (xcenter, ycenter, width, height)
+                //  FIX 3: Sửa lại tên Getter cho đúng với Entity của bạn (xcenter, ycenter, width, height)
                 // Lưu ý: COCO cần x_góc_trái, y_góc_trên. 
                 // Nếu DB bạn lưu xcenter (tâm) thì x_góc_trái = xcenter - (width / 2)
                 double xTopLeft = ann.getXCenter() - (ann.getWidth() / 2);
@@ -198,7 +198,7 @@ public class ExportService {
         // Mở luồng nén ZIP trực tiếp cho người dùng tải về
         ZipOutputStream zos = new ZipOutputStream(response.getOutputStream());
 
-        // 🌟 SỬA Ở ĐÂY: Lấy danh sách các ảnh ĐÃ DUYỆT của dự án
+        //  SỬA Ở ĐÂY: Lấy danh sách các ảnh ĐÃ DUYỆT của dự án
         // Ví dụ: List<DataItem> dataset = dataItemRepository.findApprovedItemsByProjectId(projectId);
         List<DataItem> dataset = dataItemRepository.findByProjectIdAndStatus(projectId, DataItemStatus.APPROVED);
 
@@ -207,7 +207,7 @@ public class ExportService {
             xml.append("<annotation>\n");
             xml.append("  <filename>").append(item.getFileName()).append("</filename>\n");
             xml.append("  <size>\n");
-            // 🌟 FIX 1: Gán cứng kích thước
+            //  FIX 1: Gán cứng kích thước
             xml.append("    <width>640</width>\n");
             xml.append("    <height>640</height>\n");
             xml.append("    <depth>3</depth>\n");
@@ -216,14 +216,14 @@ public class ExportService {
             List<Annotation> annotations = annotationRepository.findByDataItemId(item.getId());
 
             for (Annotation ann : annotations) {
-                // 🌟 FIX 3: Tính toán 4 góc dựa trên xcenter, ycenter
+                //  FIX 3: Tính toán 4 góc dựa trên xcenter, ycenter
                 double xmin = ann.getXCenter() - (ann.getWidth() / 2);
                 double ymin = ann.getYCenter() - (ann.getHeight() / 2);
                 double xmax = ann.getXCenter() + (ann.getWidth() / 2);
                 double ymax = ann.getYCenter() + (ann.getHeight() / 2);
 
                 xml.append("  <object>\n");
-                // 🌟 FIX 2: Lấy tên nhãn
+                //  FIX 2: Lấy tên nhãn
                 xml.append("    <name>").append(ann.getLabel().getName()).append("</name>\n");
                 xml.append("    <pose>Unspecified</pose>\n");
                 xml.append("    <truncated>0</truncated>\n");

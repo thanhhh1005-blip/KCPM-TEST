@@ -11,7 +11,7 @@ const ManageUsersPage = () => {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  // 🌟 STATE CHO PHÂN TRANG & TÌM KIẾM
+  //  STATE CHO PHÂN TRANG & TÌM KIẾM
   const [currentPage, setCurrentPage] = useState(0); // Spring Boot bắt đầu từ page 0
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,7 +28,7 @@ const ManageUsersPage = () => {
 
   const getToken = () => localStorage.getItem("token");
 
-  // 🌟 LOGIC GỌI API: Tự động chạy khi chuyển trang hoặc gõ tìm kiếm (có chống spam 500ms)
+  //  LOGIC GỌI API: Tự động chạy khi chuyển trang hoặc gõ tìm kiếm (có chống spam 500ms)
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       fetchUsers(currentPage, searchTerm);
@@ -54,7 +54,7 @@ const ManageUsersPage = () => {
       const data = await response.json();
 
       if (data.result) {
-        // 🌟 NẾU BACKEND ĐÃ TRẢ VỀ ĐỐI TƯỢNG PAGE CỦA SPRING BOOT
+        //  NẾU BACKEND ĐÃ TRẢ VỀ ĐỐI TƯỢNG PAGE CỦA SPRING BOOT
         if (data.result.content) {
           setUsers(data.result.content);
           setTotalPages(data.result.totalPages);
@@ -172,7 +172,7 @@ const ManageUsersPage = () => {
       <div className="page-header">
         <h2>Quản lý Người dùng (Admin)</h2>
 
-        {/* 🌟 THANH TÌM KIẾM VÀ NÚT THÊM */}
+        {/*  THANH TÌM KIẾM VÀ NÚT THÊM */}
         <div className="header-actions">
           <input
             type="text"
@@ -245,7 +245,7 @@ const ManageUsersPage = () => {
             </tbody>
           </table>
 
-          {/* 🌟 THANH PHÂN TRANG */}
+          {/*  THANH PHÂN TRANG */}
           {totalPages > 1 && (
             <div className="pagination">
               <button

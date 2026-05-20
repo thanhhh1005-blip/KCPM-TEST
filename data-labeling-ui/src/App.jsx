@@ -49,7 +49,7 @@ function App() {
       } />
       <Route path="/admin/audit-logs" element={<AuditLogPage />} />
       <Route path="/admin/settings" element={<SystemConfigPage/>}/>
-      {/* 🌟 TẤT CẢ USER ĐÃ ĐĂNG NHẬP ĐỀU DÙNG CHUNG MAIN LAYOUT */}
+      {/*  TẤT CẢ USER ĐÃ ĐĂNG NHẬP ĐỀU DÙNG CHUNG MAIN LAYOUT */}
       <Route element={<MainLayout />}>
         
         {/* Khu vực của Annotator */}

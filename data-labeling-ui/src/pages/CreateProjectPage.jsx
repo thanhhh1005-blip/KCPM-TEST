@@ -10,7 +10,7 @@ const CreateProjectPage = () => {
   const navigate = useNavigate();
   const getToken = () => localStorage.getItem("token");
 
-  // 🌟 HÀM GIẢI MÃ TOKEN ĐỂ KIỂM TRA ROLE
+  //   HÀM GIẢI MÃ TOKEN ĐỂ KIỂM TRA ROLE
   const checkIsAdmin = () => {
     const token = getToken();
     if (!token) return false;
@@ -28,7 +28,7 @@ const CreateProjectPage = () => {
     name: "",
     description: "",
     managerId: "",
-    reviewerId: "", // 🌟 Thêm reviewerId vào state
+    reviewerId: "", //   Thêm reviewerId vào state
   });
 
   const [labels, setLabels] = useState([{ name: "", color: "#ef4444" }]);
@@ -44,7 +44,7 @@ const CreateProjectPage = () => {
 
   const fetchUsers = async () => {
     try {
-      // 🌟 THÊM ?size=1000 VÀO URL: Ép lấy tối đa 1000 user để không bị sót Reviewer nằm ở trang sau
+      //   THÊM ?size=1000 VÀO URL: Ép lấy tối đa 1000 user để không bị sót Reviewer nằm ở trang sau
       const response = await fetch(`${API_BASE_URL}/users?size=1000`, {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
@@ -54,7 +54,7 @@ const CreateProjectPage = () => {
         // Trích xuất an toàn dù Backend có phân trang hay không
         const userArray = data.result.content ? data.result.content : data.result;
 
-        // 🌟 DÙNG .includes() ĐỂ BẮT ĐƯỢC CẢ "REVIEWER" LẪN "ROLE_REVIEWER"
+        //   DÙNG .includes() ĐỂ BẮT ĐƯỢC CẢ "REVIEWER" LẪN "ROLE_REVIEWER"
         const managerList = userArray.filter(
           (user) => user.roles && user.roles.some((r) => r.name.includes("MANAGER")),
         );
@@ -205,7 +205,7 @@ const CreateProjectPage = () => {
             />
           </div>
 
-          {/* 🌟 CHỈ HIỂN THỊ Ô NÀY NẾU LÀ ADMIN */}
+          {/*   CHỈ HIỂN THỊ Ô NÀY NẾU LÀ ADMIN */}
           {isAdmin && (
             <div>
               <label
@@ -241,7 +241,7 @@ const CreateProjectPage = () => {
             </div>
           )}
 
-          {/* 🌟 Ô CHỈ ĐỊNH REVIEWER (AI CŨNG THẤY) */}
+          {/*   Ô CHỈ ĐỊNH REVIEWER (AI CŨNG THẤY) */}
           <div>
             <label
               style={{

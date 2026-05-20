@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/reviews") // 🌟 Bỏ v1, tự động nhận /api từ cấu hình global
+@RequestMapping("/reviews") //  Bỏ v1, tự động nhận /api từ cấu hình global
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class ReviewController {
@@ -33,7 +33,7 @@ public class ReviewController {
 
     @PostMapping("/{itemId}/reject")
     public ApiResponse<String> reject(@PathVariable String itemId, @RequestBody RejectTaskRequest request) {
-        // 🌟 Tự động lấy username của người đang đăng nhập từ Token
+        //  Tự động lấy username của người đang đăng nhập từ Token
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         
         // Gọi Service (truyền username thay vì reviewerId từ request)

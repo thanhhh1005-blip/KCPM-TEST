@@ -21,7 +21,7 @@ public class AuditLogService {
         try {
             String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
             
-            // 🌟 Tự động lấy IP của người dùng
+            //  Tự động lấy IP của người dùng
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
             String ipAddress = request.getRemoteAddr();
 

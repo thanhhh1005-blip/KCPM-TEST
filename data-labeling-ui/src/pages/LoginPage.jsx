@@ -8,7 +8,7 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 const LOGIN_ENDPOINT = `${API_BASE_URL}/api/auth/token`;
 
-// 🌟 1. HÀM GIẢI MÃ TOKEN Ở NGOÀI COMPONENT
+//  1. HÀM GIẢI MÃ TOKEN Ở NGOÀI COMPONENT
 function parseJwt(token) {
   try {
     const base64Url = token.split(".")[1];
@@ -61,6 +61,7 @@ function LoginPage() {
       const token = payload.result.token;
       localStorage.setItem("token", token);
       const decoded = parseJwt(token);
+      console.log("decoded:", decoded );
 
       if (decoded) {
         let rawRole = decoded.scope || decoded.role || decoded.roles || "";
@@ -149,7 +150,7 @@ function LoginPage() {
           <p>Đăng nhập để vào không gian làm việc</p>
         </div>
 
-        {/* 🌟 NÚT ĐĂNG NHẬP GOOGLE */}
+        {/*  NÚT ĐĂNG NHẬP GOOGLE */}
         <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
           <GoogleLogin
             onSuccess={handleGoogleSuccess}

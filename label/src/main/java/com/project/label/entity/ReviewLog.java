@@ -14,7 +14,7 @@ public class ReviewLog {
     private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "data_item_id", nullable = false) // 🌟 Đổi từ task_id
+    @JoinColumn(name = "data_item_id", nullable = false) //  Đổi từ task_id
     private DataItem dataItem;
 
     @ManyToOne(fetch = FetchType.LAZY)

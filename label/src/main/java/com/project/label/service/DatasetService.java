@@ -86,7 +86,7 @@ public class DatasetService {
     return items.stream().map(item -> {
       String reason = null;
 
-      // 🌟 NẾU ẢNH BỊ TỪ CHỐI, MÓC LÝ DO TRONG LOG RA
+      //  NẾU ẢNH BỊ TỪ CHỐI, MÓC LÝ DO TRONG LOG RA
       if (item.getStatus() == DataItemStatus.REJECTED) {
         List<ReviewLog> logs = reviewLogRepository.findByDataItemIdOrderByCreatedAtDesc(item.getId());
         if (!logs.isEmpty()) {
@@ -99,7 +99,7 @@ public class DatasetService {
           .fileName(item.getFileName())
           .fileUrl(item.getFileUrl())
           .status(item.getStatus())
-          .rejectReason(reason) // 🌟 Gắn lý do vào đây để gửi cho React
+          .rejectReason(reason) //  Gắn lý do vào đây để gửi cho React
           .build();
     }).collect(Collectors.toList());
   }
@@ -117,7 +117,7 @@ public class DatasetService {
     DataItem item = items.get(0);
     String reason = null;
 
-    // 🌟 NẾU LÀ ẢNH BỊ TỪ CHỐI -> Móc lý do mới nhất trong DB ra
+    //  NẾU LÀ ẢNH BỊ TỪ CHỐI -> Móc lý do mới nhất trong DB ra
     if (item.getStatus() == DataItemStatus.REJECTED) {
       List<ReviewLog> logs = reviewLogRepository.findByDataItemIdOrderByCreatedAtDesc(item.getId());
       if (!logs.isEmpty()) {
@@ -130,7 +130,7 @@ public class DatasetService {
         .fileName(item.getFileName())
         .fileUrl(item.getFileUrl())
         .status(item.getStatus())
-        .rejectReason(reason) // 🌟 Gắn lý do vào DTO
+        .rejectReason(reason) //  Gắn lý do vào DTO
         .build();
   }
 

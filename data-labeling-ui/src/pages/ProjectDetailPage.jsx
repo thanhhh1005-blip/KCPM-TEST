@@ -20,7 +20,7 @@ const ProjectDetailPage = () => {
   const [selectedUserId, setSelectedUserId] = useState("");
   const [isAssigning, setIsAssigning] = useState(false);
 
-  // 🌟 State mới để tạo hiệu ứng Loading khi tải file
+  //  State mới để tạo hiệu ứng Loading khi tải file
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportFormat, setExportFormat] = useState("YOLO");
   const [isExporting, setIsExporting] = useState(false);
@@ -164,7 +164,7 @@ const ProjectDetailPage = () => {
     }
   }
 
-  // 🌟 HÀM TÌM TRANG CHỦ THEO ROLE
+  //  HÀM TÌM TRANG CHỦ THEO ROLE
   const getHomeRoute = () => {
     const token = localStorage.getItem("token");
     if (!token) return "/login";
@@ -200,7 +200,7 @@ const ProjectDetailPage = () => {
     }
   };
 
-  // 🌟 HÀM XUẤT FILE ZIP
+  //  HÀM XUẤT FILE ZIP
   const handleConfirmExport = async () => {
     setIsExporting(true);
     try {
@@ -226,7 +226,7 @@ const ProjectDetailPage = () => {
 
       window.URL.revokeObjectURL(downloadUrl);
 
-      // 🌟 Tải xong thì tự động đóng Popup lại
+      //  Tải xong thì tự động đóng Popup lại
       setShowExportModal(false);
     } catch (error) {
       toast.error(
@@ -364,7 +364,7 @@ const ProjectDetailPage = () => {
       >
         <h2>Chi tiết Dự án & Quản lý</h2>
         <button
-          onClick={() => navigate("/admin/dashboard")} // 🌟 BỎ ĐOẠN ${projectId} ĐI
+          onClick={() => navigate("/admin/dashboard")} //  BỎ ĐOẠN ${projectId} ĐI
           style={{
             padding: "8px 15px",
             backgroundColor: "#3b82f6",
@@ -567,7 +567,7 @@ const ProjectDetailPage = () => {
           paddingTop: "20px",
         }}
       >
-        {/* 🌟 THÊM KHUNG CHỨA NÚT XUẤT DỮ LIỆU Ở ĐÂY */}
+        {/*  THÊM KHUNG CHỨA NÚT XUẤT DỮ LIỆU Ở ĐÂY */}
         <div
           style={{
             display: "flex",
@@ -579,7 +579,7 @@ const ProjectDetailPage = () => {
           <h3>Bộ dữ liệu đã tải lên ({dataset.length} ảnh)</h3>
 
           <button
-            // 🌟 ĐỔI DÒNG NÀY ĐỂ MỞ POPUP THAY VÌ TẢI LUÔN
+            //  ĐỔI DÒNG NÀY ĐỂ MỞ POPUP THAY VÌ TẢI LUÔN
             onClick={() => setShowExportModal(true)}
             disabled={isExporting || dataset.length === 0}
             style={{

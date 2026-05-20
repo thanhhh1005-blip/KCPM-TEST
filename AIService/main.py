@@ -36,12 +36,12 @@ def predict_image(req: ImageRequest):
                 class_id = int(box.cls[0].item())
                 class_name = model.names[class_id]
                 
-                # 🌟 LẤY TỈ LỆ % TỰ TIN (Nhân 100 và làm tròn 1 chữ số)
+                #  LẤY TỈ LỆ % TỰ TIN (Nhân 100 và làm tròn 1 chữ số)
                 conf = round(float(box.conf[0].item()) * 100, 1)
                 
                 boxes.append({
                     "labelName": class_name,
-                    "confidence": conf, # 🌟 Gửi thêm số % này về
+                    "confidence": conf, #  Gửi thêm số % này về
                     "xcenter": x,
                     "ycenter": y,
                     "width": w,

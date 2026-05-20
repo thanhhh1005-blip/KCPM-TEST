@@ -20,7 +20,7 @@ public class ExportController {
     @GetMapping("/{projectId}")
     public void exportDataset(
             @PathVariable String projectId,
-            // 🌟 Hứng tham số format từ React (Mặc định là YOLO)
+            //  Hứng tham số format từ React (Mặc định là YOLO)
             @RequestParam(defaultValue = "YOLO") String format, 
             HttpServletResponse response) {
         try {

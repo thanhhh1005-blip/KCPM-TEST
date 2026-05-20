@@ -18,7 +18,7 @@
   margin: 0;
 }
 
-/* 🌟 KHU VỰC TÌM KIẾM VÀ NÚT */
+/*  KHU VỰC TÌM KIẾM VÀ NÚT */
 .header-actions {
   display: flex;
   gap: 15px;
@@ -84,7 +84,7 @@
   display: inline-block;
 }
 
-/* 🌟 PHÂN TRANG */
+/*  PHÂN TRANG */
 .pagination {
   display: flex;
   justify-content: center;

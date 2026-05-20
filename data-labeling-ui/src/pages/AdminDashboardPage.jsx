@@ -9,7 +9,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
   
-  // 🌟 States mới cho việc Chọn Dự Án
+  //   States mới cho việc Chọn Dự Án
   const [projects, setProjects] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState("");
   
@@ -67,7 +67,7 @@ const AdminDashboardPage = () => {
     }
   };
 
-  // 🌟 Bảo vệ dữ liệu: Chỉ tính toán khi stats đã có
+  //   Bảo vệ dữ liệu: Chỉ tính toán khi stats đã có
   const pieData = stats ? [
     { name: 'Đã duyệt', value: stats.approvedImages, color: '#10b981' }, 
     { name: 'Chờ duyệt', value: stats.pendingImages, color: '#f59e0b' }, 
@@ -88,7 +88,7 @@ const AdminDashboardPage = () => {
   return (
     <div style={{ padding: '20px', backgroundColor: '#f1f5f9', minHeight: '100vh', fontFamily: 'system-ui' }}>
       
-      {/* 🌟 Header & Dropdown chọn dự án */}
+      {/*   Header & Dropdown chọn dự án */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', backgroundColor: 'white', padding: '15px 20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
         <div>
           <h2 style={{ margin: 0, color: '#1e293b' }}>📊 Dashboard Thống Kê</h2>
@@ -115,7 +115,7 @@ const AdminDashboardPage = () => {
       {isLoading && <div style={{ textAlign: 'center', padding: '50px', fontSize: '18px' }}>⏳ Đang tải dữ liệu Dashboard...</div>}
       {selectedProjectId && !isLoading && !stats && <div style={{ padding: '50px', color: 'red', textAlign: 'center' }}>❌ Không lấy được dữ liệu. Hãy kiểm tra lại Backend.</div>}
 
-      {/* 🌟 CHỈ HIỂN THỊ BIỂU ĐỒ KHI ĐÃ CÓ DATA */}
+      {/*   CHỈ HIỂN THỊ BIỂU ĐỒ KHI ĐÃ CÓ DATA */}
       {stats && !isLoading && (
         <>
           {/* 4 Thẻ Số Liệu (Cards) */}
