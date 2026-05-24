@@ -25,6 +25,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import org.springframework.beans.factory.annotation.Value;
+import lombok.experimental.NonFinal;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/datasets")
@@ -32,6 +35,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class DatasetController {
   DatasetService datasetService;
   IDataItemRepository dataItemRepository;
+
+  @NonFinal
+  @Value("${ai.service.url:http://localhost:8000}")
+  String aiServiceUrl;
 
   @PostMapping("/upload")
   public ApiResponse<List<String>> uploadDataset(
@@ -74,7 +81,7 @@ public class DatasetController {
         .orElseThrow(() -> new RuntimeException("Không tìm thấy ảnh"));
 
     // 2. Chuẩn bị gói hàng gửi sang Python
-    String pythonUrl = "http://localhost:8000/predict";
+    String pythonUrl = aiServiceUrl + "/predict";
     Map<String, String> requestBody = new HashMap<>();
     requestBody.put("url", item.getFileUrl());
 

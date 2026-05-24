@@ -1,0 +1,82 @@
+services:
+  # ========================
+  # MySQL Database
+  # ========================
+  mysql:
+    image: mysql:8.0
+    container_name: labeling-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-labeling}
+    ports:
+      - "${MYSQL_PORT:-3307}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-123456}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - labeling-network
+
+  # ========================
+  # Spring Boot Application
+  # ========================
+  app:
+    build:
+      context: ./label
+      dockerfile: Dockerfile
+    container_name: labeling-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      ai-service:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    environment:
+      # Database
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-labeling}
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
+      # AI Service
+      AI_SERVICE_URL: http://ai-service:8000
+      # JWT
+      JWT_SIGNER_KEY: ${JWT_SIGNER_KEY:-be4a8798222ebe35de31c52e483770c9efe2be0c2d0c9aa209ca48b27faf7d83}
+      # Cloudinary
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-djcvbbhup}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-915878471116958}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-Wo8Zrd_XgB-_5ZHj2fYQyXCzzns}
+      # Google OAuth2
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+    networks:
+      - labeling-network
+
+  # ========================
+  # Python AI Service (YOLOv8)
+  # ========================
+  ai-service:
+    build:
+      context: ./AIService
+      dockerfile: Dockerfile
+    container_name: labeling-ai
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    networks:
+      - labeling-network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  labeling-network:
+    driver: bridge

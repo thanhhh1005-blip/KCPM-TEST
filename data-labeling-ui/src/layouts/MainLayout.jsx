@@ -32,9 +32,15 @@ function MainLayout() {
       let rawRole = decoded.scope || decoded.role || decoded.roles || decoded.authorities || "";
       let userRoleString = Array.isArray(rawRole) ? rawRole.join(" ") : String(rawRole);
       
+      // Chỉ lấy các role (ROLE_XXX), bỏ permissions
+      let roleNames = userRoleString.split(" ")
+        .filter(s => s.startsWith("ROLE_"))
+        .map(s => s.replace("ROLE_", ""))
+        .join(", ");
+      
       setUserInfo({ 
         username: decoded.sub || "User", 
-        role: userRoleString.toUpperCase() 
+        role: roleNames.toUpperCase() || userRoleString.toUpperCase()
       });
     }
   }, [navigate]);
