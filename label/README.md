@@ -126,7 +126,8 @@ Mở trình duyệt: [http://localhost:8080/api/swagger-ui/index.html](http://lo
 ---
 ``` bash
 # Chạy ui của app
-cd data-labeling ui
+cd data-labeling-ui
+npm install
 npm run dev
 ```
 ## 👤 Tài khoản mặc định
@@ -137,7 +138,7 @@ Khi chạy lần đầu (database trống), hệ thống tự động tạo:
 |-------------|-----------|
 | **Username** | `admin`   |
 | **Password** | `admin`   |
-| **Role**     | `ADMIN`   |
+| **Role*npm install*     | `ADMIN`   |
 
 > ⚠️ **QUAN TRỌNG**: Hãy đổi mật khẩu admin ngay sau lần đăng nhập đầu tiên!
 
